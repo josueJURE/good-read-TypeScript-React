@@ -1,17 +1,8 @@
-import { NextResponse} from 'next/server'
+"use server"
 
-export async function POST(request: Request) {
-
-    const formData = await request.formData()
-    const client = formData.get("title")
+export async function submitBookInfo(formData: FormData) {
+    const email = formData.get("title")
     const author = formData.get("author")
-    console.log("client", client)
-    console.log("author", author)
-
-
-    return NextResponse.json({
-        success: "BS"
-    })
-
+    console.log(email, author)
+  
 }
-
