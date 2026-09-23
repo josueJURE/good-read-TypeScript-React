@@ -1,28 +1,26 @@
 "use server";
 
-import { NextResponse } from "next/server";
-import { success, z } from "zod";
+import { z } from "zod";
 
 const bookSchema = z.object({
-  title: z.string().min(1).max(50),
-  author: z.number(),
+  title: z.string().trim().min(1).max(50),
+  author: z.string().trim().min(1),
 });
 
-export async function submitBookInfo(initialState: any, formData: FormData) {
-  const {
-    $ACTION_ID_40c0f02203185cff8d94b2031c040d0ce912f880ed,
-    ...bookObject
-  } = Object.fromEntries(formData);
-
-  console.log(bookObject);
-
-  const bookSchemaValidation = bookSchema.safeParse(bookObject);
+export async function submitBookInfo(
+  _previousState: { message: string },
+  formData: FormData,
+) {
+  const bookSchemaValidation = bookSchema.safeParse({
+    title: formData.get("title"),
+    author: formData.get("author"),
+  });
 
   if (!bookSchemaValidation.success) {
-    return { message: "false" };
+    return { message: "Enter a title (1–50 characters) and an author." };
   }
 
-  return { message: "true" };
+  console.log(bookSchemaValidation.data);
 
-  console.log(true);
+  return { message: "Book information submitted." };
 }
