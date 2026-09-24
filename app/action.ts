@@ -6,6 +6,18 @@ import { prisma } from "../lib/prisma";
 const bookSchema = z.object({
   title: z.string().trim().min(1).max(50),
   author: z.string().trim().min(1),
+  pageCount: z.int().positive(),
+  isbn: z.string().min(10).max(13),
+  description: z.string().max(8000).optional(),
+  genre:  z.string().min(1).max(50), 
+  publisher: z.string().min(1).max(50).optional(),
+  publishedAt: z.date(),
+  coverImageUrl: z.url({ protocol: /^https?$/ }).nullish(),
+  language: z.string().min(1).max(50),
+  createdAt: z.date(),
+  updatedAt: z.date()
+
+
 });
 
 export async function submitBookInfo(
