@@ -8,15 +8,12 @@ const bookSchema = z.object({
   author: z.string().trim().min(1),
   pageCount: z.int().positive(),
   isbn: z.string().min(10).max(13),
-  description: z.string().max(8000).optional(),
-  genre:  z.string().min(1).max(50), 
-  publisher: z.string().min(1).max(50).optional(),
-  publishedAt: z.date(),
+  description: z.string().max(8000).nullish(),
+  genre: z.string().min(1).max(50),
+  publisher: z.string().min(1).max(50).nullish(),
+  publishedAt: z.date().nullable(),
   coverImageUrl: z.url({ protocol: /^https?$/ }).nullish(),
   language: z.string().min(1).max(50),
-  createdAt: z.date(),
-  updatedAt: z.date()
-
 
 });
 
@@ -40,7 +37,7 @@ export async function submitBookInfo(
   await prisma.book.create({
     data: {
       title,
-      author
+      author,
     },
   });
   return { message: "Book information submitted." };

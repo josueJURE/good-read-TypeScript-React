@@ -22,14 +22,14 @@ model Book {
   id              Int      @id @default(autoincrement())
   title           String
   author          String
-  pageCount       Int?
-  isbn            String?  @unique
+  pageCount       Int
+  isbn            String  @unique
   description     String?
-  genre           String?
+  genre           String
   publisher       String?
   publishedAt     DateTime?
   coverImageUrl   String?
-  language        String?
+  language        String
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
