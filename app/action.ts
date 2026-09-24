@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import {prisma} from "../lib/prisma"
+import { prisma } from "../lib/prisma";
 
 const bookSchema = z.object({
   title: z.string().trim().min(1).max(50),
@@ -10,7 +10,7 @@ const bookSchema = z.object({
 
 export async function submitBookInfo(
   _previousState: { message: string },
-  formData: FormData,
+  formData: FormData
 ) {
   const bookSchemaValidation = bookSchema.safeParse({
     title: formData.get("title"),
@@ -23,27 +23,23 @@ export async function submitBookInfo(
 
   console.log("bookSchemaValidation.data", bookSchemaValidation.data);
 
-  const {title, author} = bookSchemaValidation.data
+  const { title, author } = bookSchemaValidation.data;
 
-
-
-await prisma.book.createMany({
-  data: [
-    { title, author },
-   
-  ],
-
-});
-
-
-
-
-
+  await prisma.book.create({
+    data: {
+      title,
+      author
+    },
+  });
   return { message: "Book information submitted." };
-
-
-
-
-
-
 }
+
+// const createMany = await prisma.user.createMany({
+//   data: [
+//     { name: "Bob", email: "bob@prisma.io" },
+//     { name: "Bobo", email: "bob@prisma.io" }, // Duplicate unique key!
+//     { name: "Yewande", email: "yewande@prisma.io" },
+//     { name: "Angelique", email: "angelique@prisma.io" },
+//   ],
+//   skipDuplicates: true, // Skip 'Bobo'
+// });

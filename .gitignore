@@ -41,3 +41,6 @@ yarn-error.log*
 next-env.d.ts
 
 /app/generated/prisma
+
+# Local backup from the Prisma 8 rollback
+/.prisma8-backup/
