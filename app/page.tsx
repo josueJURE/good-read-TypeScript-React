@@ -15,8 +15,16 @@ export default function Home() {
         <h1>Welcome to the reading habit tracker website </h1>
 
         <form action={formAction}>
-          <input  name="title" placeholder="title" />
-          <input name="author" placeholder="author"/>
+          <input required name="title" placeholder="title" />
+          <input required name="author" placeholder="author"/>
+          <input required type="number" name="pageCount" placeholder="page count"/>
+          <input required type="number" name="isbn" placeholder="isbn"/>
+          <input name="description" placeholder="description"/>
+          <input required name="genre" placeholder="genre"/>
+          <input required name="publisher" placeholder="publisher"/>
+          <input name="publishedAt" type="date" placeholder="published at"/>
+          <input name="coverImageUrl" placeholder="cover Image url"/>
+          <input required name="language" placeholder="language"/>
           <button disabled={pending} type="submit">
             {pending ? "Request is being submitted..." : "Submit"}
           </button>

@@ -11,19 +11,43 @@ const bookSchema = z.object({
   description: z.string().max(8000).nullish(),
   genre: z.string().min(1).max(50),
   publisher: z.string().min(1).max(50).nullish(),
-  publishedAt: z.date().nullable(),
+  publishedAt: z.date().nullish(),
   coverImageUrl: z.url({ protocol: /^https?$/ }).nullish(),
   language: z.string().min(1).max(50),
-
 });
 
 export async function submitBookInfo(
   _previousState: { message: string },
-  formData: FormData
+  formData: FormData,
+   
 ) {
+
+  const pageCounter = Number(formData.get("pageCount"))
+
+  const publishedAtInput = formData.get("publishedAt");
+
+  const date =
+    typeof publishedAtInput === "string" && publishedAtInput.trim() !== ""
+      ? new Date(publishedAtInput)
+      : null;
+
+
+
+
+ 
+
+
   const bookSchemaValidation = bookSchema.safeParse({
     title: formData.get("title"),
     author: formData.get("author"),
+    pageCount: pageCounter,
+    isbn: formData.get("isbn"),
+    description: formData.get("description"),
+    genre: formData.get("genre"),
+    publisher: formData.get("publisher"),
+    publishedAt: date,
+    coverImageUrl: formData.get("coverImageUrl:"),
+    language: formData.get("language"),
   });
 
   if (!bookSchemaValidation.success) {
@@ -32,12 +56,37 @@ export async function submitBookInfo(
 
   console.log("bookSchemaValidation.data", bookSchemaValidation.data);
 
-  const { title, author } = bookSchemaValidation.data;
+  console.log(typeof bookSchemaValidation.data.isbn)
+
+  const {
+    title,
+    author,
+    pageCount,
+    isbn,
+    description,
+    genre,
+    publisher,
+    publishedAt,
+    coverImageUrl,
+    language,
+  } = bookSchemaValidation.data;
+
+
 
   await prisma.book.create({
     data: {
       title,
       author,
+      pageCount,
+      isbn,
+      description,
+      genre,
+      publisher,
+      publishedAt,
+      coverImageUrl,
+      language,
+
+      // pageCount, isbn, genre, language
     },
   });
   return { message: "Book information submitted." };
