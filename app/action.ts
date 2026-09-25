@@ -30,14 +30,8 @@ export async function submitBookInfo(
     typeof publishedAtInput === "string" && publishedAtInput.trim() !== ""
       ? new Date(publishedAtInput)
       : null;
-
-
-
-
- 
-
-
-  const bookSchemaValidation = bookSchema.safeParse({
+try {
+  const bookSchemaValidation = bookSchema.parse({
     title: formData.get("title"),
     author: formData.get("author"),
     pageCount: pageCounter,
@@ -46,35 +40,13 @@ export async function submitBookInfo(
     genre: formData.get("genre"),
     publisher: formData.get("publisher"),
     publishedAt: date,
-    coverImageUrl: formData.get("coverImageUrl:"),
+    coverImageUrl: formData.get("coverImageUrl"),
     language: formData.get("language"),
   });
 
-  if (!bookSchemaValidation.success) {
-    return { message: "Enter a title (1–50 characters) and an author." };
-  }
 
-  console.log("bookSchemaValidation.data", bookSchemaValidation.data);
-
-  console.log(typeof bookSchemaValidation.data.isbn)
-
-  const {
-    title,
-    author,
-    pageCount,
-    isbn,
-    description,
-    genre,
-    publisher,
-    publishedAt,
-    coverImageUrl,
-    language,
-  } = bookSchemaValidation.data;
-
-
-
-  await prisma.book.create({
-    data: {
+  
+    const {
       title,
       author,
       pageCount,
@@ -85,11 +57,39 @@ export async function submitBookInfo(
       publishedAt,
       coverImageUrl,
       language,
+    } = bookSchemaValidation;
+  
+  
+  
+    await prisma.book.create({
+      data: {
+        title,
+        author,
+        pageCount,
+        isbn,
+        description,
+        genre,
+        publisher,
+        publishedAt,
+        coverImageUrl,
+        language,
+  
+        // pageCount, isbn, genre, language
+      },
+    });
+    return { message: "Book information submitted." };
 
-      // pageCount, isbn, genre, language
-    },
-  });
-  return { message: "Book information submitted." };
+} catch (err) {
+  if (err instanceof z.ZodError) {
+    return {message: err.issues[0].message ?? "Invalid book"}
+  }
+}
+
+  
+return { message: "Could not save the book. Please try again." };
+  
+
+
 }
 
 // const createMany = await prisma.user.createMany({
