@@ -42,20 +42,18 @@ export default function DisplayBooks() {
     <>
       <ul>
         {books.map((book) => (
-          <>
-            <div key={book.id}>
-              <h1>{book.title}</h1>
-              <li>{book.author}</li>
-              <li>{book.pageCount}</li>
-              <li>{book.isbn}</li>
-              <li>{book.language}</li>
-              <li>{book.pageCount}</li>
-              <li>{book.publishedAt}</li>
-              <li>{book.publisher}</li>
-              <li>{book.description}</li>
-              <li>{book.coverImageUrl}</li>
-            </div>
-          </>
+          <div key={book.id}>
+            <h1>{book.title}</h1>
+            <li>{book.author}</li>
+            <li>{book.pageCount}</li>
+            <li>{book.isbn}</li>
+            <li>{book.language}</li>
+            <li>{book.pageCount}</li>
+            <li>{book.publishedAt}</li>
+            <li>{book.publisher}</li>
+            <li>{book.description}</li>
+            <li>{book.coverImageUrl}</li>
+          </div>
         ))}
       </ul>
       <div>{error && <p role="alert">{error}</p>}</div>
