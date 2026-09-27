@@ -74,14 +74,14 @@ export default function DisplayBooks() {
               )}
 
               <header className="space-y-3 p-6 pb-4">
-                <span className="inline-flex max-w-full rounded-md border border-zinc-200 px-2 py-0.5 text-xs font-medium break-words dark:border-zinc-700">
+                <span className="inline-flex max-w-full rounded-md border border-zinc-200 px-2 py-0.5 text-xs font-medium wrap-break-words dark:border-zinc-700">
                   {book.genre}
                 </span>
                 <div className="space-y-1.5">
-                  <h2 className="text-xl leading-snug font-semibold tracking-tight break-words">
+                  <h2 className="text-xl leading-snug font-semibold tracking-tight wrap-break-words">
                     {book.title}
                   </h2>
-                  <p className="text-sm break-words text-zinc-500 dark:text-zinc-400">
+                  <p className="text-sm wrap-break-words text-zinc-500 dark:text-zinc-400">
                     by {book.author}
                   </p>
                 </div>
@@ -89,7 +89,7 @@ export default function DisplayBooks() {
 
               <div className="flex-1 space-y-5 px-6 pb-6">
                 {book.description && (
-                  <p className="text-sm leading-relaxed break-words text-zinc-600 dark:text-zinc-400">
+                  <p className="text-sm leading-relaxed wrap-break-words text-zinc-600 dark:text-zinc-400">
                     {book.description}
                   </p>
                 )}
@@ -100,11 +100,11 @@ export default function DisplayBooks() {
                   </div>
                   <div className="min-w-0 space-y-1">
                     <dt className="text-xs text-zinc-500 dark:text-zinc-400">Language</dt>
-                    <dd className="font-medium break-words">{book.language}</dd>
+                    <dd className="font-medium wrap-break-words">{book.language}</dd>
                   </div>
                   <div className="min-w-0 space-y-1">
                     <dt className="text-xs text-zinc-500 dark:text-zinc-400">Publisher</dt>
-                    <dd className="font-medium break-words">{book.publisher || "Not listed"}</dd>
+                    <dd className="font-medium wrap-break-words">{book.publisher || "Not listed"}</dd>
                   </div>
                   <div className="min-w-0 space-y-1">
                     <dt className="text-xs text-zinc-500 dark:text-zinc-400">Published</dt>
