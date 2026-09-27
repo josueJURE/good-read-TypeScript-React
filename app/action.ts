@@ -2,19 +2,7 @@
 
 import { z } from "zod";
 import { prisma } from "../lib/prisma";
-
-const bookSchema = z.object({
-  title: z.string().trim().min(1).max(50),
-  author: z.string().trim().min(1),
-  pageCount: z.int().positive(),
-  isbn: z.string().min(10).max(13),
-  description: z.string().max(8000).nullish(),
-  genre: z.string().min(1).max(50),
-  publisher: z.string().min(1).max(50).nullish(),
-  publishedAt: z.date().nullish(),
-  coverImageUrl: z.url({ protocol: /^https?$/ }).nullish(),
-  language: z.string().min(1).max(50),
-});
+import {bookSchema } from "./zod-schemas"
 
 export async function submitBookInfo(
   _previousState: { message: string },
@@ -77,13 +65,19 @@ try {
         // pageCount, isbn, genre, language
       },
     });
-    return { message: "Book information submitted." };
+    return { message: "Book information submitted.",
+
+     };
 
 } catch (err) {
   if (err instanceof z.ZodError) {
     return {message: err.issues[0].message ?? "Invalid book"}
   }
 }
+
+// if (err instanceof z.ZodError) {
+//   return {message: err.issues[0].message ?? "Invalid book"}
+// }
 
   
 return { message: "Could not save the book. Please try again." };
