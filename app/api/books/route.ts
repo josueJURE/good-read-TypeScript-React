@@ -13,6 +13,16 @@ export async function GET(request: Request) {
     success: true,
     books,
   });
+}
 
-  console.log(books[0]);
+export async function DELETE(request: Request) {
+  const data =  await request.json();
+  
+  
+  console.log("data", data)
+  console.log("data.id", typeof data.id)
+
+  return NextResponse.json({
+    success: true,
+  });
 }
