@@ -5,15 +5,27 @@ import { prisma } from "../../../lib/prisma";
 import { bookid } from "../../zod-schemas";
 import {z} from "zod";
 
-export async function GET(request: Request) {
+export async function GET() {
   await connection();
 
-  const books = await prisma.book.findMany();
+  try {
+    const books = await prisma.book.findMany();
 
-  return NextResponse.json({
-    success: true,
-    books,
-  });
+    return NextResponse.json({
+      success: true,
+      books,
+    });
+  } catch (error) {
+    console.error("Failed to fetch books:", error);
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Could not load books. Please try again.",
+      },
+      { status: 500 }
+    );
+  }
 }
 
 export async function DELETE(request: Request) {
@@ -25,6 +37,8 @@ try {
   console.log("validateBookId", bookIdValidation);
   console.log("lidateBookId.id", typeof bookIdValidation.id);
 
+
+  
 
   const books = await prisma.book.delete({
     where : {
