@@ -41,8 +41,10 @@ try {
 
 } catch (err) {
   return err instanceof z.ZodError ? NextResponse.json({
-    error: err.issues[0].message ?? "Invalid data sent to server"
+    success: false,
+    error: err.issues[0]?.message ?? "Invalid data sent to server"
   }) : NextResponse.json({
+    success: false,
     error: "Invalid data sent to server"
   })
 

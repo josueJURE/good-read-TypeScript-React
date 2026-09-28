@@ -1,4 +1,4 @@
-import {  z } from "zod";
+import { z } from "zod";
 
 export const bookSchema = z.object({
   id: z.int().optional(),
@@ -14,19 +14,29 @@ export const bookSchema = z.object({
   language: z.string().min(1).max(50),
 });
 
+// ${result === 'error' ? '<a href="#">link</a>' : ''}
 
+
+export const apiErrorSchema = z.object({
+  success: z.literal(false),
+  error: z.string(),
+});
+
+export const bookDeletionSchema = z.discriminatedUnion("success", [
+  z.object({
+    success: z.literal(true),
+    message: z.string(),
+  }),
+  apiErrorSchema,
+]);
 
 export const bookid = bookSchema.pick({ id: true });
 
 export const bookResponseSchema = bookSchema.extend({
   publishedAt: z.iso.datetime().nullable(),
-
 });
 
-export const apiErrorSchema = z.object({
-  success: z.literal(false),
-  error: z.string()
-})
+
 
 export const bookSchemaResponseSchema = z.discriminatedUnion("success", [
   z.object({
@@ -36,11 +46,6 @@ export const bookSchemaResponseSchema = z.discriminatedUnion("success", [
   apiErrorSchema,
 ]);
 
-
-
-
 // For books received through JSON:
-
-
 
 export type bookSchemaType = z.infer<typeof bookResponseSchema>;
