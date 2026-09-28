@@ -1,7 +1,7 @@
 import {  z } from "zod";
 
 export const bookSchema = z.object({
-  id: z.int(),
+  id: z.int().optional(),
   title: z.string().trim().min(1).max(50),
   author: z.string().trim().min(1),
   pageCount: z.int().positive(),
@@ -13,6 +13,8 @@ export const bookSchema = z.object({
   coverImageUrl: z.url({ protocol: /^https?$/ }).nullish(),
   language: z.string().min(1).max(50),
 });
+
+
 
 export const bookid = bookSchema.pick({ id: true });
 

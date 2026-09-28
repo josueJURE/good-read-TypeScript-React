@@ -36,12 +36,11 @@ export default function DisplayBooks() {
     void fetchBooks();
   }, []);
 
-  const deleteBooks = async (bookId: number) => { 
-
+  const deleteBooks = async (bookId: number | undefined) => {
     try {
       const response = await fetch("/api/books", {
         method: "DELETE",
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: bookId }),
       });
       if (!response.ok) {
@@ -49,10 +48,12 @@ export default function DisplayBooks() {
       }
     } catch (err) {
       setDeletebook(
-        err instanceof z.ZodError ? err.issues[0]?.message ?? "Couldn't delete book" : "Couldn't delete book" 
+        err instanceof z.ZodError
+          ? err.issues[0]?.message ?? "Couldn't delete book"
+          : "Couldn't delete book"
       );
     }
-    console.log("delete")
+    console.log("delete");
   };
 
   return (
@@ -161,7 +162,15 @@ export default function DisplayBooks() {
               </div>
 
               <footer className="flex justify-end border-t border-zinc-200 bg-zinc-50/70 px-6 py-4 dark:border-zinc-800 dark:bg-zinc-950/30">
-                <button onClick={() => deleteBooks(book.id)}
+                <button
+                  onClick={async () => {
+                    await deleteBooks(book.id);
+                    setBooks((currentBooks) => 
+                      currentBooks.filter((item) => item.id !== book.id)
+
+                    )
+               
+                  }}
                   type="button"
                   aria-label={`Delete ${book.title}`}
                   className="inline-flex h-9 items-center justify-center rounded-lg border border-zinc-200 bg-white px-3 text-sm font-medium text-red-600 shadow-xs transition-colors hover:border-red-200 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-red-400 dark:hover:border-red-900 dark:hover:bg-red-950/40"
