@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { prisma } from "../lib/prisma";
+import { prisma } from "@/lib/prisma";
 import {bookSchema } from "./zod-schemas"
 
 export async function submitBookInfo(

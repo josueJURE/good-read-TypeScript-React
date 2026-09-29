@@ -1,8 +1,8 @@
 import { connection, NextResponse } from "next/server";
 // import { type Prisma } from '@prisma/client';
 
-import { prisma } from "../../../lib/prisma";
-import { bookid } from "../../zod-schemas";
+import { prisma } from "@/lib/prisma";
+import { bookid } from "@/app/zod-schemas";
 import {z} from "zod";
 
 export async function GET() {
