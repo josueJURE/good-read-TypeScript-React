@@ -1,0 +1,52 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - heading "Add a book" [level=1] [ref=e5]
+        - paragraph [ref=e6]: Make room for your next read in your library.
+      - generic [ref=e7]:
+        - generic [ref=e8]:
+          - heading "Book details" [level=2] [ref=e9]
+          - paragraph [ref=e10]: Fields marked with * are required.
+        - generic [ref=e11]:
+          - generic [ref=e12]:
+            - generic [ref=e13]: Title *
+            - textbox "Title *" [ref=e14]:
+              - /placeholder: Book title
+          - generic [ref=e15]:
+            - generic [ref=e16]: Author *
+            - textbox "Author *" [ref=e17]:
+              - /placeholder: Author name
+          - generic [ref=e18]:
+            - generic [ref=e19]: Pages *
+            - spinbutton "Pages *" [ref=e20]
+          - generic [ref=e21]:
+            - generic [ref=e22]: ISBN *
+            - spinbutton "ISBN *" [ref=e23]
+          - generic [ref=e24]:
+            - generic [ref=e25]: Description (optional)
+            - textbox "Description (optional)" [ref=e26]:
+              - /placeholder: A little about the book…
+          - generic [ref=e27]:
+            - generic [ref=e28]: Genre *
+            - textbox "Genre *" [ref=e29]:
+              - /placeholder: e.g. Fiction
+          - generic [ref=e30]:
+            - generic [ref=e31]: Publisher *
+            - textbox "Publisher *" [ref=e32]:
+              - /placeholder: Publisher name
+          - generic [ref=e33]:
+            - generic [ref=e34]: Published (optional)
+            - textbox "Published (optional)" [ref=e35]
+          - generic [ref=e36]:
+            - generic [ref=e37]: Language *
+            - textbox "Language *" [ref=e38]:
+              - /placeholder: e.g. English
+          - generic [ref=e39]:
+            - generic [ref=e40]: Cover image URL (optional)
+            - textbox "Cover image URL (optional)" [ref=e41]:
+              - /placeholder: https://example.com/book-cover.jpg
+        - generic [ref=e42]:
+          - paragraph
+          - button "Add book" [ref=e43]
+  - button "Open Next.js Dev Tools" [ref=e49] [cursor=pointer]

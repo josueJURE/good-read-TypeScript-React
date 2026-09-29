@@ -1,7 +1,11 @@
 "use client";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { bookSchemaResponseSchema, type bookSchemaType } from "../zod-schemas";
+import {
+  bookSchemaResponseSchema,
+  bookDeletionSchema,
+  type bookSchemaType,
+} from "../zod-schemas";
 import { z } from "zod";
 
 export default function DisplayBooks() {
@@ -13,16 +17,16 @@ export default function DisplayBooks() {
     const fetchBooks = async () => {
       try {
         const response = await fetch("/api/books");
-        if (!response.ok)
-          throw new Error(`Response status: ${response.status}`);
-
         const data = bookSchemaResponseSchema.parse(await response.json());
-
-        if (data.success) {
-          setBooks(data.books);
-        } else {
+        if (!data.success) {
           setError(data.error);
+          return;
         }
+        if (!response.ok) {
+          throw new Error(`Response status: ${response.status}`);
+        }
+
+        setBooks(data.books);
       } catch (err) {
         setError(
           err instanceof z.ZodError
@@ -46,6 +50,17 @@ export default function DisplayBooks() {
       if (!response.ok) {
         throw new Error(`Response status: ${response.status}`);
       }
+      const data = bookDeletionSchema.parse(await response.json());
+
+      if (!data.success) {
+        setDeletebook(data.error);
+        return;
+      }
+
+      setBooks((currentBooks) =>
+        currentBooks.filter((book) => book.id !== bookId)
+      );
+      setDeletebook(data.message);
     } catch (err) {
       setDeletebook(
         err instanceof z.ZodError
@@ -53,7 +68,6 @@ export default function DisplayBooks() {
           : "Couldn't delete book"
       );
     }
-    console.log("delete");
   };
 
   return (
@@ -64,7 +78,9 @@ export default function DisplayBooks() {
             Your library
           </h1>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            All your books, in one place.
+            {books.length === 1
+              ? "your one read in one place"
+              : `Your ${books.length} books in one place`}
           </p>
         </header>
 
@@ -165,11 +181,6 @@ export default function DisplayBooks() {
                 <button
                   onClick={async () => {
                     await deleteBooks(book.id);
-                    setBooks((currentBooks) => 
-                      currentBooks.filter((item) => item.id !== book.id)
-
-                    )
-               
                   }}
                   type="button"
                   aria-label={`Delete ${book.title}`}
@@ -181,6 +192,7 @@ export default function DisplayBooks() {
             </article>
           ))}
         </div>
+        <div>{deleteBook}</div>
       </div>
     </main>
   );
