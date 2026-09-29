@@ -7,14 +7,16 @@ import {
   type bookSchemaType,
 } from "../zod-schemas";
 import { z } from "zod";
+import { da } from "zod/locales";
 
 export default function DisplayBooks() {
   const [books, setBooks] = useState<bookSchemaType[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [deleteBook, setDeletebook] = useState<string | null>(null);
 
-  function isRemoveFromDb() {
-    return window.confirm("are you sure you want to delete this book");
+
+  function confirmBookDeletion() {
+    return window.confirm(` are you sure you want to delete this book`);
   }
 
   useEffect(() => {
@@ -46,7 +48,7 @@ export default function DisplayBooks() {
 
   const deleteBooks = async (bookId: number | undefined) => {
     try {
-      if (isRemoveFromDb()) {
+      if (confirmBookDeletion()) {
         const response = await fetch("/api/books", {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
