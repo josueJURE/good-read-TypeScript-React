@@ -61,8 +61,6 @@ try {
         publishedAt,
         coverImageUrl,
         language,
-  
-        // pageCount, isbn, genre, language
       },
     });
     return { message: "Book information submitted.",
@@ -75,9 +73,7 @@ try {
   }
 }
 
-// if (err instanceof z.ZodError) {
-//   return {message: err.issues[0].message ?? "Invalid book"}
-// }
+
 
   
 return { message: "Could not save the book. Please try again." };
@@ -86,12 +82,3 @@ return { message: "Could not save the book. Please try again." };
 
 }
 
-// const createMany = await prisma.user.createMany({
-//   data: [
-//     { name: "Bob", email: "bob@prisma.io" },
-//     { name: "Bobo", email: "bob@prisma.io" }, // Duplicate unique key!
-//     { name: "Yewande", email: "yewande@prisma.io" },
-//     { name: "Angelique", email: "angelique@prisma.io" },
-//   ],
-//   skipDuplicates: true, // Skip 'Bobo'
-// });
