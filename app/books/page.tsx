@@ -80,7 +80,7 @@ export default function DisplayBooks() {
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
             {books.length === 1
               ? "your one read in one place"
-              : `Your ${books.length} in one place`}
+              : `Your ${books.length} books in one place`}
           </p>
         </header>
 
