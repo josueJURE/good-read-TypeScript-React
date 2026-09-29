@@ -13,6 +13,10 @@ export default function DisplayBooks() {
   const [error, setError] = useState<string | null>(null);
   const [deleteBook, setDeletebook] = useState<string | null>(null);
 
+  function isRemoveFromDb() {
+    return window.confirm("are you sure you want to delete this book");
+  }
+
   useEffect(() => {
     const fetchBooks = async () => {
       try {
@@ -42,25 +46,27 @@ export default function DisplayBooks() {
 
   const deleteBooks = async (bookId: number | undefined) => {
     try {
-      const response = await fetch("/api/books", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: bookId }),
-      });
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-      const data = bookDeletionSchema.parse(await response.json());
+      if (isRemoveFromDb()) {
+        const response = await fetch("/api/books", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: bookId }),
+        });
+        if (!response.ok) {
+          throw new Error(`Response status: ${response.status}`);
+        }
+        const data = bookDeletionSchema.parse(await response.json());
 
-      if (!data.success) {
-        setDeletebook(data.error);
-        return;
-      }
+        if (!data.success) {
+          setDeletebook(data.error);
+          return;
+        }
 
-      setBooks((currentBooks) =>
-        currentBooks.filter((book) => book.id !== bookId)
-      );
-      setDeletebook(data.message);
+        setBooks((currentBooks) =>
+          currentBooks.filter((book) => book.id !== bookId)
+        );
+        setDeletebook(data.message);
+      }
     } catch (err) {
       setDeletebook(
         err instanceof z.ZodError
