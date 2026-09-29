@@ -2,15 +2,13 @@
 
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import {bookSchema } from "./zod-schemas"
+import { bookSchema } from "./zod-schemas";
 
 export async function submitBookInfo(
   _previousState: { message: string },
-  formData: FormData,
-   
+  formData: FormData
 ) {
-
-  const pageCounter = Number(formData.get("pageCount"))
+  const pageCounter = Number(formData.get("pageCount"));
 
   const publishedAtInput = formData.get("publishedAt");
 
@@ -18,22 +16,20 @@ export async function submitBookInfo(
     typeof publishedAtInput === "string" && publishedAtInput.trim() !== ""
       ? new Date(publishedAtInput)
       : null;
-try {
-  const bookSchemaValidation = bookSchema.parse({
-    title: formData.get("title"),
-    author: formData.get("author"),
-    pageCount: pageCounter,
-    isbn: formData.get("isbn"),
-    description: formData.get("description"),
-    genre: formData.get("genre"),
-    publisher: formData.get("publisher"),
-    publishedAt: date,
-    coverImageUrl: formData.get("coverImageUrl"),
-    language: formData.get("language"),
-  });
+  try {
+    const bookSchemaValidation = bookSchema.parse({
+      title: formData.get("title"),
+      author: formData.get("author"),
+      pageCount: pageCounter,
+      isbn: formData.get("isbn"),
+      description: formData.get("description"),
+      genre: formData.get("genre"),
+      publisher: formData.get("publisher"),
+      publishedAt: date,
+      coverImageUrl: formData.get("coverImageUrl"),
+      language: formData.get("language"),
+    });
 
-
-  
     const {
       title,
       author,
@@ -46,9 +42,7 @@ try {
       coverImageUrl,
       language,
     } = bookSchemaValidation;
-  
-  
-  
+
     await prisma.book.create({
       data: {
         title,
@@ -63,22 +57,12 @@ try {
         language,
       },
     });
-    return { message: "Book information submitted.",
-
-     };
-
-} catch (err) {
-  if (err instanceof z.ZodError) {
-    return {message: err.issues[0].message ?? "Invalid book"}
+    return { message: "Book information submitted." };
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return { message: err.issues[0].message ?? "Invalid book" };
+    }
   }
+
+  return { message: "Could not save the book. Please try again." };
 }
-
-
-
-  
-return { message: "Could not save the book. Please try again." };
-  
-
-
-}
-
