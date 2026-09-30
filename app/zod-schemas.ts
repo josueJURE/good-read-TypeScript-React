@@ -14,6 +14,10 @@ export const bookSchema = z.object({
   language: z.string().min(1).max(50),
 });
 
+
+
+
+
 // ${result === 'error' ? '<a href="#">link</a>' : ''}
 
 
@@ -35,6 +39,8 @@ export const bookid = bookSchema.pick({ id: true });
 export const bookResponseSchema = bookSchema.extend({
   publishedAt: z.iso.datetime().nullable(),
 });
+
+
 
 
 

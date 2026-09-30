@@ -97,7 +97,7 @@ export default function BookEditForm({
     })
 
     if(!response.ok) {
-      throw new Error("Parameter is not a number!");
+      throw new Error(`${response.status}`);
     }
 
     const serverResponse = await response.json() 

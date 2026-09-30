@@ -5,6 +5,7 @@ import { bookResponseSchema } from "@/app/zod-schemas";
 import { prisma } from "@/lib/prisma";
 import { bookid } from "@/app/zod-schemas";
 import { z } from "zod";
+import { title } from "process";
 
 export async function GET() {
   await connection();
@@ -35,7 +36,6 @@ export async function DELETE(request: Request) {
   try {
     const bookIdValidation = bookid.parse(await request.json());
 
- 
     const books = await prisma.book.delete({
       where: {
         id: bookIdValidation.id,
@@ -62,17 +62,29 @@ export async function DELETE(request: Request) {
 export async function PATCH(request: Request) {
   const data = await request.json();
 
-  // const bookSchemaValidation = bookResponseSchema.parse(data)
+  console.log("data", data.updatedBook)
 
- 
+  const bookSchemaValidation = bookResponseSchema.parse(data.updatedBook);
 
-  
+  console.log('bookSchemaValidation', bookSchemaValidation)
 
-  console.log("PATCH data.updatedBook.id", data.updatedBook.id);
+  const { id, ...rest } = bookSchemaValidation;
+
+  const bookId = Number(id);
+
+  const books = await prisma.book.update({
+    where: {
+      id: bookId,
+    },
+
+    data: {
+      ...rest,
+    },
+  });
 
   console.log("PATCH data.author", data.updatedBook.author);
 
   return NextResponse.json({
-    message: "hello",
+    message: `${books.title} has been updated`,
   });
 }
