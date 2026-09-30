@@ -35,7 +35,11 @@ const fields: {
 const inputClassName =
   "w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50";
 
-export default function BookEditForm({ book, onSave, onCancel }: BookEditFormProps) {
+export default function BookEditForm({
+  book,
+  onSave,
+  onCancel,
+}: BookEditFormProps) {
   const formId = useId();
   const [draft, setDraft] = useState<BookDraft>(() => ({
     title: book.title,
@@ -56,7 +60,7 @@ export default function BookEditForm({ book, onSave, onCancel }: BookEditFormPro
     setError(null);
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const result = bookResponseSchema.safeParse({
@@ -79,19 +83,43 @@ export default function BookEditForm({ book, onSave, onCancel }: BookEditFormPro
 
     if (!result.success) {
       const issue = result.error.issues[0];
-      const label = fields.find((field) => field.name === issue?.path[0])?.label
-        ?? "Description";
+      const label =
+        fields.find((field) => field.name === issue?.path[0])?.label ??
+        "Description";
       setError(`${label}: ${issue?.message ?? "Please check this field."}`);
       return;
     }
+
+    const response  = await fetch('/api/books', {
+      method: "PATCH",
+      headers: {"Content-Type" : "application/json"},
+      body: JSON.stringify({updatedBook: result.data})
+    })
+
+    if(!response.ok) {
+      throw new Error("Parameter is not a number!");
+    }
+
+    const serverResponse = await response.json() 
+
+    console.log(serverResponse.message)
+
+  
 
     onSave(result.data);
   }
 
   return (
-    <form onSubmit={handleSubmit} aria-labelledby={`${formId}-heading`} className="flex h-full flex-col">
+    <form
+      onSubmit={handleSubmit}
+      aria-labelledby={`${formId}-heading`}
+      className="flex h-full flex-col"
+    >
       <header className="space-y-2 p-6 pb-4">
-        <h2 id={`${formId}-heading`} className="text-xl font-semibold tracking-tight">
+        <h2
+          id={`${formId}-heading`}
+          className="text-xl font-semibold tracking-tight"
+        >
           Edit book
         </h2>
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
@@ -102,7 +130,10 @@ export default function BookEditForm({ book, onSave, onCancel }: BookEditFormPro
       <div className="flex-1 space-y-4 px-6 pb-6">
         {fields.map(({ name, label, type = "text", ...constraints }) => (
           <div key={name} className="space-y-1.5">
-            <label htmlFor={`${formId}-${name}`} className="block text-sm font-medium">
+            <label
+              htmlFor={`${formId}-${name}`}
+              className="block text-sm font-medium"
+            >
               {label}
             </label>
             <input
@@ -122,7 +153,10 @@ export default function BookEditForm({ book, onSave, onCancel }: BookEditFormPro
         ))}
 
         <div className="space-y-1.5">
-          <label htmlFor={`${formId}-description`} className="block text-sm font-medium">
+          <label
+            htmlFor={`${formId}-description`}
+            className="block text-sm font-medium"
+          >
             Description
           </label>
           <textarea
@@ -136,7 +170,11 @@ export default function BookEditForm({ book, onSave, onCancel }: BookEditFormPro
           />
         </div>
 
-        {error && <p role="alert" className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+        {error && (
+          <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+            {error}
+          </p>
+        )}
       </div>
 
       <footer className="flex flex-wrap justify-end gap-3 border-t border-zinc-200 bg-zinc-50/70 px-6 py-4 dark:border-zinc-800 dark:bg-zinc-950/30">

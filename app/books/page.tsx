@@ -78,6 +78,21 @@ export default function DisplayBooks() {
     }
   };
 
+  //  const updateDb = async() => {
+  //     const response = await fetch('/api/books', {
+  //       method: "PATCH",
+  //       headers: new Headers({ "Content-Type": "application/json" }),
+  //       body: JSON.stringify({update: books})
+  //     });
+  //     if(!response.ok) {
+  //       throw new Error("Server Error!");
+  //     }
+
+  //     const data = await response.json()
+
+  //     console.log(data)
+  //   }
+
   return (
     <main className="min-h-screen bg-zinc-50 px-4 py-10 font-sans text-zinc-950 sm:px-6 sm:py-14 dark:bg-zinc-950 dark:text-zinc-50">
       <div className="mx-auto max-w-6xl space-y-8">
@@ -119,6 +134,7 @@ export default function DisplayBooks() {
                     );
                     setEditingBook(null);
                   }}
+              
                 />
               ) : (
                 <>
