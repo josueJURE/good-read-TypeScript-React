@@ -54,6 +54,7 @@ export default function BookEditForm({
     description: book.description ?? "",
   }));
   const [error, setError] = useState<string | null>(null);
+  const [update, setUpdate] = useState<string | null>(null)
 
   function updateField(name: keyof BookDraft, value: string) {
     setDraft((current) => ({ ...current, [name]: value }));
@@ -103,6 +104,7 @@ export default function BookEditForm({
     const serverResponse = await response.json() 
 
     console.log(serverResponse.message)
+    setUpdate(serverResponse.message)
 
   
 
@@ -191,6 +193,7 @@ export default function BookEditForm({
         >
           Save changes
         </button>
+        <div>{update}</div>
       </footer>
     </form>
   );
