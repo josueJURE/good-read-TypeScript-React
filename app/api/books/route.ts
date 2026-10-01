@@ -60,31 +60,39 @@ export async function DELETE(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const data = await request.json();
+  try {
+    const data = await request.json();
 
-  console.log("data", data.updatedBook)
+    const bookSchemaValidation = bookResponseSchema.parse(data.updatedBook);
+  
+    const { id, ...rest } = bookSchemaValidation;
+  
+    const bookId = Number(id);
+  
+    const books = await prisma.book.update({
+      where: {
+        id: bookId,
+      },
+  
+      data: {
+        ...rest,
+      },
+    });
+  
+    return NextResponse.json({
+      message: `${books.title} has been updated`,
+    });
+  } catch (err) {
+    if(err instanceof z.ZodError) {
+      NextResponse.json({
+        message: `${err.issues[0].message}`
+      })
+    } else {
+      NextResponse.json({
+        message: 'internal sever Error'
+      })
+    }
+  }
 
-  const bookSchemaValidation = bookResponseSchema.parse(data.updatedBook);
+  }
 
-  console.log('bookSchemaValidation', bookSchemaValidation)
-
-  const { id, ...rest } = bookSchemaValidation;
-
-  const bookId = Number(id);
-
-  const books = await prisma.book.update({
-    where: {
-      id: bookId,
-    },
-
-    data: {
-      ...rest,
-    },
-  });
-
-  console.log("PATCH data.author", data.updatedBook.author);
-
-  return NextResponse.json({
-    message: `${books.title} has been updated`,
-  });
-}
