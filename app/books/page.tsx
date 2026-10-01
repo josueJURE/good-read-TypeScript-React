@@ -7,16 +7,16 @@ import {
   type bookSchemaType,
 } from "../zod-schemas";
 import { z } from "zod";
-import { da } from "zod/locales";
+import BookEditForm from "../components/book-edit-form";
 
 export default function DisplayBooks() {
   const [books, setBooks] = useState<bookSchemaType[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [deleteBook, setDeletebook] = useState<string | null>(null);
-
+  const [editingBook, setEditingBook] = useState<bookSchemaType | null>(null);
 
   function confirmBookDeletion() {
-    return window.confirm(` are you sure you want to delete this book`);
+    return window.confirm(`are you sure you want to delete this book`);
   }
 
   useEffect(() => {
@@ -78,6 +78,21 @@ export default function DisplayBooks() {
     }
   };
 
+  //  const updateDb = async() => {
+  //     const response = await fetch('/api/books', {
+  //       method: "PATCH",
+  //       headers: new Headers({ "Content-Type": "application/json" }),
+  //       body: JSON.stringify({update: books})
+  //     });
+  //     if(!response.ok) {
+  //       throw new Error("Server Error!");
+  //     }
+
+  //     const data = await response.json()
+
+  //     console.log(data)
+  //   }
+
   return (
     <main className="min-h-screen bg-zinc-50 px-4 py-10 font-sans text-zinc-950 sm:px-6 sm:py-14 dark:bg-zinc-950 dark:text-zinc-50">
       <div className="mx-auto max-w-6xl space-y-8">
@@ -107,96 +122,123 @@ export default function DisplayBooks() {
               key={book.id}
               className="flex min-w-0 flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
             >
-              {book.coverImageUrl && (
-                <div className="relative h-56 border-b border-zinc-200 bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-800/50">
-                  <Image
-                    src={book.coverImageUrl}
-                    alt={`Cover of ${book.title}`}
-                    fill
-                    unoptimized
-                    className="object-contain p-5"
-                  />
-                </div>
-              )}
-
-              <header className="space-y-3 p-6 pb-4">
-                <span className="inline-flex max-w-full rounded-md border border-zinc-200 px-2 py-0.5 text-xs font-medium wrap-break-words dark:border-zinc-700">
-                  {book.genre}
-                </span>
-                <div className="space-y-1.5">
-                  <h2 className="text-xl leading-snug font-semibold tracking-tight wrap-break-words">
-                    {book.title}
-                  </h2>
-                  <p className="text-sm wrap-break-words text-zinc-500 dark:text-zinc-400">
-                    by {book.author}
-                  </p>
-                </div>
-              </header>
-
-              <div className="flex-1 space-y-5 px-6 pb-6">
-                {book.description && (
-                  <p className="text-sm leading-relaxed wrap-break-words text-zinc-600 dark:text-zinc-400">
-                    {book.description}
-                  </p>
-                )}
-                <dl className="grid grid-cols-2 gap-x-4 gap-y-4 text-sm">
-                  <div className="min-w-0 space-y-1">
-                    <dt className="text-xs text-zinc-500 dark:text-zinc-400">
-                      Pages
-                    </dt>
-                    <dd className="font-medium">{book.pageCount}</dd>
-                  </div>
-                  <div className="min-w-0 space-y-1">
-                    <dt className="text-xs text-zinc-500 dark:text-zinc-400">
-                      Language
-                    </dt>
-                    <dd className="font-medium wrap-break-words">
-                      {book.language}
-                    </dd>
-                  </div>
-                  <div className="min-w-0 space-y-1">
-                    <dt className="text-xs text-zinc-500 dark:text-zinc-400">
-                      Publisher
-                    </dt>
-                    <dd className="font-medium wrap-break-words">
-                      {book.publisher || "Not listed"}
-                    </dd>
-                  </div>
-                  <div className="min-w-0 space-y-1">
-                    <dt className="text-xs text-zinc-500 dark:text-zinc-400">
-                      Published
-                    </dt>
-                    <dd className="font-medium">
-                      {book.publishedAt ? (
-                        <time dateTime={book.publishedAt}>
-                          {book.publishedAt.slice(0, 10)}
-                        </time>
-                      ) : (
-                        "Not listed"
-                      )}
-                    </dd>
-                  </div>
-                  <div className="col-span-2 space-y-1">
-                    <dt className="text-xs text-zinc-500 dark:text-zinc-400">
-                      ISBN
-                    </dt>
-                    <dd className="font-mono text-xs break-all">{book.isbn}</dd>
-                  </div>
-                </dl>
-              </div>
-
-              <footer className="flex justify-end border-t border-zinc-200 bg-zinc-50/70 px-6 py-4 dark:border-zinc-800 dark:bg-zinc-950/30">
-                <button
-                  onClick={async () => {
-                    await deleteBooks(book.id);
+              {editingBook === book ? (
+                <BookEditForm
+                  book={book}
+                  onCancel={() => setEditingBook(null)}
+                  onSave={(updatedBook) => {
+                    setBooks((currentBooks) =>
+                      currentBooks.map((currentBook) =>
+                        currentBook === book ? updatedBook : currentBook
+                      )
+                    );
+                    setEditingBook(null);
                   }}
-                  type="button"
-                  aria-label={`Delete ${book.title}`}
-                  className="inline-flex h-9 items-center justify-center rounded-lg border border-zinc-200 bg-white px-3 text-sm font-medium text-red-600 shadow-xs transition-colors hover:border-red-200 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-red-400 dark:hover:border-red-900 dark:hover:bg-red-950/40"
-                >
-                  Delete
-                </button>
-              </footer>
+              
+                />
+              ) : (
+                <>
+                  {book.coverImageUrl && (
+                    <div className="relative h-56 border-b border-zinc-200 bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-800/50">
+                      <Image
+                        src={book.coverImageUrl}
+                        alt={`Cover of ${book.title}`}
+                        fill
+                        unoptimized
+                        className="object-contain p-5"
+                      />
+                    </div>
+                  )}
+
+                  <header className="space-y-3 p-6 pb-4">
+                    <span className="inline-flex max-w-full rounded-md border border-zinc-200 px-2 py-0.5 text-xs font-medium wrap-break-words dark:border-zinc-700">
+                      {book.genre}
+                    </span>
+                    <div className="space-y-1.5">
+                      <h2 className="text-xl leading-snug font-semibold tracking-tight wrap-break-words">
+                        {book.title}
+                      </h2>
+                      <p className="text-sm wrap-break-words text-zinc-500 dark:text-zinc-400">
+                        by {book.author}
+                      </p>
+                    </div>
+                  </header>
+
+                  <div className="flex-1 space-y-5 px-6 pb-6">
+                    {book.description && (
+                      <p className="text-sm leading-relaxed wrap-break-words text-zinc-600 dark:text-zinc-400">
+                        {book.description}
+                      </p>
+                    )}
+                    <dl className="grid grid-cols-2 gap-x-4 gap-y-4 text-sm">
+                      <div className="min-w-0 space-y-1">
+                        <dt className="text-xs text-zinc-500 dark:text-zinc-400">
+                          Pages
+                        </dt>
+                        <dd className="font-medium">{book.pageCount}</dd>
+                      </div>
+                      <div className="min-w-0 space-y-1">
+                        <dt className="text-xs text-zinc-500 dark:text-zinc-400">
+                          Language
+                        </dt>
+                        <dd className="font-medium wrap-break-words">
+                          {book.language}
+                        </dd>
+                      </div>
+                      <div className="min-w-0 space-y-1">
+                        <dt className="text-xs text-zinc-500 dark:text-zinc-400">
+                          Publisher
+                        </dt>
+                        <dd className="font-medium wrap-break-words">
+                          {book.publisher || "Not listed"}
+                        </dd>
+                      </div>
+                      <div className="min-w-0 space-y-1">
+                        <dt className="text-xs text-zinc-500 dark:text-zinc-400">
+                          Published
+                        </dt>
+                        <dd className="font-medium">
+                          {book.publishedAt ? (
+                            <time dateTime={book.publishedAt}>
+                              {book.publishedAt.slice(0, 10)}
+                            </time>
+                          ) : (
+                            "Not listed"
+                          )}
+                        </dd>
+                      </div>
+                      <div className="col-span-2 space-y-1">
+                        <dt className="text-xs text-zinc-500 dark:text-zinc-400">
+                          ISBN
+                        </dt>
+                        <dd className="font-mono text-xs break-all">{book.isbn}</dd>
+                      </div>
+                    </dl>
+                  </div>
+
+                  <footer className="flex justify-between border-t border-zinc-200 bg-zinc-50/70 px-6 py-4 dark:border-zinc-800 dark:bg-zinc-950/30">
+                    <button
+                      type="button"
+                      onClick={() => setEditingBook(book)}
+                      disabled={editingBook !== null}
+                      aria-label={`Edit ${book.title}`}
+                      className="inline-flex h-9 items-center justify-center rounded-lg border border-zinc-200 bg-white px-3 text-sm font-medium shadow-xs transition-colors hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={async () => {
+                        await deleteBooks(book.id);
+                      }}
+                      type="button"
+                      aria-label={`Delete ${book.title}`}
+                      className="inline-flex h-9 items-center justify-center rounded-lg border border-zinc-200 bg-white px-3 text-sm font-medium text-red-600 shadow-xs transition-colors hover:border-red-200 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-red-400 dark:hover:border-red-900 dark:hover:bg-red-950/40"
+                    >
+                      Delete
+                    </button>
+                  </footer>
+                </>
+              )}
             </article>
           ))}
         </div>

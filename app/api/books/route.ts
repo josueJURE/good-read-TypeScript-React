@@ -1,9 +1,11 @@
 import { connection, NextResponse } from "next/server";
+import { bookResponseSchema } from "@/app/zod-schemas";
 // import { type Prisma } from '@prisma/client';
 
 import { prisma } from "@/lib/prisma";
 import { bookid } from "@/app/zod-schemas";
-import {z} from "zod";
+import { z } from "zod";
+import { title } from "process";
 
 export async function GET() {
   await connection();
@@ -31,37 +33,58 @@ export async function GET() {
 export async function DELETE(request: Request) {
   await connection();
 
-try {
-  const bookIdValidation = bookid.parse(await request.json())
+  try {
+    const bookIdValidation = bookid.parse(await request.json());
 
-  console.log("validateBookId", bookIdValidation);
-  console.log("lidateBookId.id", typeof bookIdValidation.id);
+    const books = await prisma.book.delete({
+      where: {
+        id: bookIdValidation.id,
+      },
+    });
 
-
-  
-
-  const books = await prisma.book.delete({
-    where : {
-      id: bookIdValidation.id
-    }
-  })
-
-  
-
-  return NextResponse.json({
-    success: true,
-    message: `${books.title} has been successfully deleted from your database`
-  });
-
-} catch (err) {
-  return err instanceof z.ZodError ? NextResponse.json({
-    success: false,
-    error: err.issues[0]?.message ?? "Invalid data sent to server"
-  }) : NextResponse.json({
-    success: false,
-    error: "Invalid data sent to server"
-  })
-
+    return NextResponse.json({
+      success: true,
+      message: `${books.title} has been successfully deleted from your database`,
+    });
+  } catch (err) {
+    return err instanceof z.ZodError
+      ? NextResponse.json({
+          success: false,
+          error: err.issues[0]?.message ?? "Invalid data sent to server",
+        })
+      : NextResponse.json({
+          success: false,
+          error: "Invalid data sent to server",
+        });
+  }
 }
 
+export async function PATCH(request: Request) {
+  const data = await request.json();
+
+  console.log("data", data.updatedBook)
+
+  const bookSchemaValidation = bookResponseSchema.parse(data.updatedBook);
+
+  console.log('bookSchemaValidation', bookSchemaValidation)
+
+  const { id, ...rest } = bookSchemaValidation;
+
+  const bookId = Number(id);
+
+  const books = await prisma.book.update({
+    where: {
+      id: bookId,
+    },
+
+    data: {
+      ...rest,
+    },
+  });
+
+  console.log("PATCH data.author", data.updatedBook.author);
+
+  return NextResponse.json({
+    message: `${books.title} has been updated`,
+  });
 }
