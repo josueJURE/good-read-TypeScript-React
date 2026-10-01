@@ -55,7 +55,27 @@ async function main() {
       updatedAt: date.toISOString(),
     },
   });
-  console.log({ tomSaywer, theWayOfKings });
+  const jordanAvida = await prisma.book.upsert({
+    where: { id: 3 },
+    update: {},
+    create: {
+      id: 3,
+      title: "Micheal Jordan A Vida",
+      author: "Roland Lazenby",
+      pageCount: 715,
+      isbn: "9789895626221",
+      description: "Book about the Greatest Sportsman of All Times",
+      genre: "Sports",
+      publisher: "Pinguin",
+      publishedAt: date.toISOString(),
+      coverImageUrl:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTvYPuc6p33hAzZ2H1Rm5xvCjSb9gvmBA5aLmCuRbkfw&s",
+      language: "Portuguese",
+      createdAt: date.toISOString(),
+      updatedAt: date.toISOString(),
+    },
+  });
+  console.log({ tomSaywer, theWayOfKings, jordanAvida  });
 }
 main()
   .then(async () => {
