@@ -8,12 +8,17 @@ import {
 } from "../zod-schemas";
 import { z } from "zod";
 import BookEditForm from "../components/book-edit-form";
+import { toast } from "@/components/ui/toast"
+
+
+
 
 export default function DisplayBooks() {
   const [books, setBooks] = useState<bookSchemaType[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [deleteBook, setDeletebook] = useState<string | null>(null);
   const [editingBook, setEditingBook] = useState<bookSchemaType | null>(null);
+  const [update, setUpdate] = useState<string | null>(null)
 
   function confirmBookDeletion() {
     return window.confirm(`are you sure you want to delete this book`);
@@ -90,6 +95,7 @@ export default function DisplayBooks() {
               ? "your one read in one place"
               : `Your ${books.length} books in one place`}
           </p>
+          <div>Drop down</div>
         </header>
 
         {error && (
@@ -111,13 +117,18 @@ export default function DisplayBooks() {
                 <BookEditForm
                   book={book}
                   onCancel={() => setEditingBook(null)}
-                  onSave={(updatedBook) => {
+                  onSave={(updatedBook, message) => {
                     setBooks((currentBooks) =>
                       currentBooks.map((currentBook) =>
                         currentBook === book ? updatedBook : currentBook
                       )
                     );
+                    setUpdate(message)
                     setEditingBook(null);
+                    toast.add({
+                      title: "updated",
+                      description: message,
+                    })
                   }}
                 />
               ) : (
@@ -229,6 +240,7 @@ export default function DisplayBooks() {
           ))}
         </div>
         <div>{deleteBook}</div>
+        <p role="status"></p>
       </div>
     </main>
   );
