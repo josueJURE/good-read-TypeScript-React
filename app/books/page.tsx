@@ -8,17 +8,14 @@ import {
 } from "../zod-schemas";
 import { z } from "zod";
 import BookEditForm from "../components/book-edit-form";
-import { toast } from "@/components/ui/toast"
-
-
-
+import { toast } from "@/components/ui/toast";
 
 export default function DisplayBooks() {
   const [books, setBooks] = useState<bookSchemaType[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [deleteBook, setDeletebook] = useState<string | null>(null);
   const [editingBook, setEditingBook] = useState<bookSchemaType | null>(null);
-  const [update, setUpdate] = useState<string | null>(null)
+  const [update, setUpdate] = useState<string | null>(null);
 
   function confirmBookDeletion() {
     return window.confirm(`are you sure you want to delete this book`);
@@ -38,6 +35,13 @@ export default function DisplayBooks() {
         }
 
         setBooks(data.books);
+        console.log("data.books", data.books);
+
+        const languages = data.books.map((book) => {
+          return book.language;
+        });
+
+        console.log(new Set(languages));
       } catch (err) {
         setError(
           err instanceof z.ZodError
@@ -123,12 +127,12 @@ export default function DisplayBooks() {
                         currentBook === book ? updatedBook : currentBook
                       )
                     );
-                    setUpdate(message)
+                    setUpdate(message);
                     setEditingBook(null);
                     toast.add({
                       title: "updated",
                       description: message,
-                    })
+                    });
                   }}
                 />
               ) : (
@@ -241,6 +245,7 @@ export default function DisplayBooks() {
         </div>
         <div>{deleteBook}</div>
         <p role="status"></p>
+        <button>Language</button>
       </div>
     </main>
   );
