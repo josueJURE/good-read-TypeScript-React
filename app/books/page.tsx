@@ -59,13 +59,12 @@ export default function DisplayBooks() {
         // const uniqueLanguesList = new Set(languages);
         // setLanguagesList(uniqueLanguesList)
 
-        console.log("languagesList", languagesList)
+        console.log("languagesList", languagesList);
 
-        const unique = uniqueLanguage(languages)
-        setLanguagesList(unique)
+        const unique = uniqueLanguage(languages);
+        setLanguagesList(unique);
 
-       console.log("unique", unique)
-
+        console.log("unique", unique);
       } catch (err) {
         setError(
           err instanceof z.ZodError
@@ -82,8 +81,6 @@ export default function DisplayBooks() {
   useEffect(() => {
     console.log("2nd use effect languagesList", languagesList);
   }, [languagesList]);
-
-
 
   const deleteBooks = async (bookId: number | undefined) => {
     try {
@@ -131,12 +128,10 @@ export default function DisplayBooks() {
                 : `Your ${books.length} books in one place`}
             </p>
 
-            {/* {languagesList?.map((language) => (
-              <Dropdown language={language} />
-            ))} */}
-          
-       
-      
+            <Dropdown
+              languages={languagesList}
+             
+            />
           </div>
         </header>
 
