@@ -75,7 +75,27 @@ async function main() {
       updatedAt: date.toISOString(),
     },
   });
-  console.log({ tomSaywer, theWayOfKings, jordanAvida  });
+  const BatmanTheLOngHalloween = await prisma.book.upsert({
+    where: { id: 4 },
+    update: {},
+    create: {
+      id: 4,
+      title: "Batman The Long Halloween",
+      author: "Jeph Loeb with art by Tim Sale",
+      pageCount: 384,
+      isbn: "9781401232597",
+      description: "Written by JEPH LOEB Art and cover by TIM SALE From the early days of Batman’s crimefighting career, this new edition of the classic mystery involves a killer who strikes only on holidays. Working with Harvey Dent and Lieutenant Gordon, Batman races to discover who Holiday is! Collected from the original 13-issue series",
+      genre: "Comics",
+      publisher: "DC comics",
+      publishedAt: date.toISOString(),
+      coverImageUrl:
+        "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcSzaM5jzRQUmvqcejeyiF55hKFRh5Zs4VxLhLAX7qMzXX44x28-4Ef4IPodIqUWxwl6BH4ueg3z4mbGWX_stcH8SaE8cYrdR8CyBsOvJPUfv5eZE4ZqI6Oq&usqp=CAc",
+      language: "English",
+      createdAt: date.toISOString(),
+      updatedAt: date.toISOString(),
+    },
+  });
+  console.log({ tomSaywer, theWayOfKings, jordanAvida, BatmanTheLOngHalloween  });
 }
 main()
   .then(async () => {
