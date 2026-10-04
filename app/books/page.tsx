@@ -6,22 +6,34 @@ import {
   bookDeletionSchema,
   type bookSchemaType,
 } from "../zod-schemas";
+
+import Dropdown from "@/app/components/drop-down-menu";
+
 import { z } from "zod";
 import BookEditForm from "../components/book-edit-form";
-import { toast } from "@/components/ui/toast"
-
-
-
+import { toast } from "@/components/ui/toast";
 
 export default function DisplayBooks() {
   const [books, setBooks] = useState<bookSchemaType[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [deleteBook, setDeletebook] = useState<string | null>(null);
   const [editingBook, setEditingBook] = useState<bookSchemaType | null>(null);
-  const [update, setUpdate] = useState<string | null>(null)
+  const [update, setUpdate] = useState<string | null>(null);
+  const [languagesList, setLanguagesList] = useState<string[]>([]);
+  // const [languagesList, setLanguagesList] = useState<Set<string> | undefined>();
 
   function confirmBookDeletion() {
     return window.confirm(`are you sure you want to delete this book`);
+  }
+
+  function uniqueLanguage(params: string[]) {
+    let uniqueValue: string[] = [];
+    for (let i = 0; i < params.length; i++) {
+      if (!uniqueValue.includes(params[i])) {
+        uniqueValue.push(params[i]);
+      }
+    }
+    return uniqueValue;
   }
 
   useEffect(() => {
@@ -38,6 +50,21 @@ export default function DisplayBooks() {
         }
 
         setBooks(data.books);
+        console.log("data.books", data.books);
+
+        const languages = data.books.map((book) => {
+          return book.language;
+        });
+
+        // const uniqueLanguesList = new Set(languages);
+        // setLanguagesList(uniqueLanguesList)
+
+        console.log("languagesList", languagesList);
+
+        const unique = uniqueLanguage(languages);
+        setLanguagesList(unique);
+
+        console.log("unique", unique);
       } catch (err) {
         setError(
           err instanceof z.ZodError
@@ -50,6 +77,10 @@ export default function DisplayBooks() {
     };
     void fetchBooks();
   }, []);
+
+  useEffect(() => {
+    console.log("2nd use effect languagesList", languagesList);
+  }, [languagesList]);
 
   const deleteBooks = async (bookId: number | undefined) => {
     try {
@@ -90,12 +121,18 @@ export default function DisplayBooks() {
           <h1 className="text-3xl font-semibold tracking-tight">
             Your library
           </h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            {books.length === 1
-              ? "your one read in one place"
-              : `Your ${books.length} books in one place`}
-          </p>
-          <div>Drop down</div>
+          <div className="grid grid-cols-2 gap-1">
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              {books.length === 1
+                ? "your one read in one place"
+                : `Your ${books.length} books in one place`}
+            </p>
+
+            <Dropdown
+              languages={languagesList}
+             
+            />
+          </div>
         </header>
 
         {error && (
@@ -123,12 +160,12 @@ export default function DisplayBooks() {
                         currentBook === book ? updatedBook : currentBook
                       )
                     );
-                    setUpdate(message)
+                    setUpdate(message);
                     setEditingBook(null);
                     toast.add({
                       title: "updated",
                       description: message,
-                    })
+                    });
                   }}
                 />
               ) : (
@@ -241,6 +278,7 @@ export default function DisplayBooks() {
         </div>
         <div>{deleteBook}</div>
         <p role="status"></p>
+        <button>Language</button>
       </div>
     </main>
   );
