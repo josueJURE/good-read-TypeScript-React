@@ -19,7 +19,7 @@ export default function DisplayBooks() {
   const [deleteBook, setDeletebook] = useState<string | null>(null);
   const [editingBook, setEditingBook] = useState<bookSchemaType | null>(null);
   const [update, setUpdate] = useState<string | null>(null);
-  const [languagesList, setLanguagesList] = useState<string[] | undefined>([]);
+  const [languagesList, setLanguagesList] = useState<string[]>([]);
   // const [languagesList, setLanguagesList] = useState<Set<string> | undefined>();
 
   function confirmBookDeletion() {
