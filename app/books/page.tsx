@@ -13,6 +13,10 @@ import { z } from "zod";
 import BookEditForm from "../components/book-edit-form";
 import { toast } from "@/components/ui/toast";
 
+type LanguageList = {
+  language: string;
+};
+
 export default function DisplayBooks() {
   const [books, setBooks] = useState<bookSchemaType[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -24,6 +28,40 @@ export default function DisplayBooks() {
   function confirmBookDeletion() {
     return window.confirm(`are you sure you want to delete this book`);
   }
+
+  const updateLanguagesList = async () => {
+    const response = await fetch("/api/updatedLanguagesList", {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const serverData = await response.json();
+
+    if (!response.ok) {
+      console.log("/api/updatedLanguagesList");
+      return;
+    }
+
+    console.log("serverData.languages", serverData.languages);
+
+    const languagesArray = serverData.languages;
+
+    function createArray(languageParam: Array<LanguageList>) {
+      const uniqueValue: any = []
+      for (let index = 0; index < languageParam.length; index++) {
+        if (!uniqueValue.includes(languageParam[index].language)) {
+          uniqueValue.push(languageParam[index].language)
+        }
+        
+      }
+      return uniqueValue
+    }
+
+    setLanguagesList(createArray(languagesArray))
+    console.log(createArray(languagesArray))
+
+  
+  };
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -40,7 +78,6 @@ export default function DisplayBooks() {
 
         setBooks(data.books);
         console.log("data.books", data.books);
-
 
         const unique = Array.from(
           new Set(
@@ -142,6 +179,7 @@ export default function DisplayBooks() {
                         currentBook === book ? updatedBook : currentBook
                       )
                     );
+                    updateLanguagesList();
                     setUpdate(message);
                     setEditingBook(null);
                     toast.add({
