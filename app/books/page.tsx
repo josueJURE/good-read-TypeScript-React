@@ -20,20 +20,9 @@ export default function DisplayBooks() {
   const [editingBook, setEditingBook] = useState<bookSchemaType | null>(null);
   const [update, setUpdate] = useState<string | null>(null);
   const [languagesList, setLanguagesList] = useState<string[]>([]);
-  // const [languagesList, setLanguagesList] = useState<Set<string> | undefined>();
 
   function confirmBookDeletion() {
     return window.confirm(`are you sure you want to delete this book`);
-  }
-
-  function uniqueLanguage(params: string[]) {
-    let uniqueValue: string[] = [];
-    for (let i = 0; i < params.length; i++) {
-      if (!uniqueValue.includes(params[i])) {
-        uniqueValue.push(params[i]);
-      }
-    }
-    return uniqueValue;
   }
 
   useEffect(() => {
@@ -52,19 +41,15 @@ export default function DisplayBooks() {
         setBooks(data.books);
         console.log("data.books", data.books);
 
-        const languages = data.books.map((book) => {
-          return book.language;
-        });
 
-        // const uniqueLanguesList = new Set(languages);
-        // setLanguagesList(uniqueLanguesList)
-
-        console.log("languagesList", languagesList);
-
-        const unique = uniqueLanguage(languages);
+        const unique = Array.from(
+          new Set(
+            data.books.map((book) => {
+              return book.language;
+            })
+          )
+        );
         setLanguagesList(unique);
-
-        console.log("unique", unique);
       } catch (err) {
         setError(
           err instanceof z.ZodError
@@ -128,10 +113,7 @@ export default function DisplayBooks() {
                 : `Your ${books.length} books in one place`}
             </p>
 
-            <Dropdown
-              languages={languagesList}
-             
-            />
+            <Dropdown languages={languagesList} />
           </div>
         </header>
 
