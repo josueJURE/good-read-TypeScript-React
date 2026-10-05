@@ -20,7 +20,6 @@ export default function DisplayBooks() {
   const [editingBook, setEditingBook] = useState<bookSchemaType | null>(null);
   const [update, setUpdate] = useState<string | null>(null);
   const [languagesList, setLanguagesList] = useState<string[]>([]);
-  // const [languagesList, setLanguagesList] = useState<Set<string> | undefined>();
 
   function confirmBookDeletion() {
     return window.confirm(`are you sure you want to delete this book`);
@@ -42,11 +41,14 @@ export default function DisplayBooks() {
         setBooks(data.books);
         console.log("data.books", data.books);
 
-        const languages = data.books.map((book) => {
-          return book.language;
-        });
 
-        const unique = Array.from(new Set(languages));
+        const unique = Array.from(
+          new Set(
+            data.books.map((book) => {
+              return book.language;
+            })
+          )
+        );
         setLanguagesList(unique);
       } catch (err) {
         setError(
