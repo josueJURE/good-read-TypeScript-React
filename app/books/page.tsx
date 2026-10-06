@@ -283,6 +283,7 @@ export default function DisplayBooks() {
                     <button
                       onClick={async () => {
                         await deleteBooks(book.id);
+                        updateLanguagesList()
                       }}
                       type="button"
                       aria-label={`Delete ${book.title}`}
