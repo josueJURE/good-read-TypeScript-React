@@ -26,6 +26,14 @@ export const apiErrorSchema = z.object({
   error: z.string(),
 });
 
+export const languagesResponseSchema = z.discriminatedUnion("success", [
+  z.object({
+    success: z.literal(true),
+    languages: z.array(bookSchema.pick({ language: true })),
+  }),
+  apiErrorSchema,
+]);
+
 export const bookDeletionSchema = z.discriminatedUnion("success", [
   z.object({
     success: z.literal(true),

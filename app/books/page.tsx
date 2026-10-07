@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import {
   bookSchemaResponseSchema,
   bookDeletionSchema,
+  languagesResponseSchema,
   type bookSchemaType,
 } from "../zod-schemas";
 
@@ -30,37 +31,44 @@ export default function DisplayBooks() {
   }
 
   const updateLanguagesList = async () => {
-    const response = await fetch("/api/updatedLanguagesList", {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    });
+    try {
+      const response = await fetch("/api/updatedLanguagesList", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
 
-    const serverData = await response.json();
+      const serverData = languagesResponseSchema.parse(await response.json());
 
-    if (!response.ok) {
-      console.log("/api/updatedLanguagesList");
-      return;
-    }
-
-    console.log("serverData.languages", serverData.languages);
-
-    const languagesArray = serverData.languages;
-
-    function createArray(languageParam: Array<LanguageList>) {
-      const uniqueValue: string[] = []
-      for (let index = 0; index < languageParam.length; index++) {
-        if (!uniqueValue.includes(languageParam[index].language)) {
-          uniqueValue.push(languageParam[index].language)
-        }
-        
+      if (!serverData.success) {
+        throw new Error(serverData.error);
       }
-      return uniqueValue
+
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+
+      const languagesArray = serverData.languages;
+
+      function createArray(languageParam: Array<LanguageList>) {
+        const uniqueValue: string[] = [];
+        for (let index = 0; index < languageParam.length; index++) {
+          if (!uniqueValue.includes(languageParam[index].language)) {
+            uniqueValue.push(languageParam[index].language);
+          }
+        }
+        return uniqueValue;
+      }
+
+      setLanguagesList(createArray(languagesArray));
+    } catch (err) {
+      setError(
+        err instanceof z.ZodError
+          ? "Could not refresh languages: invalid response from the server."
+          : err instanceof Error
+          ? `Could not refresh languages: ${err.message}`
+          : "Could not refresh languages."
+      );
     }
-
-    setLanguagesList(createArray(languagesArray))
-    console.log(createArray(languagesArray))
-
-  
   };
 
   useEffect(() => {
@@ -287,6 +295,11 @@ export default function DisplayBooks() {
                         const deleted = await deleteBooks(book.id);
                         if (deleted) {
                           await updateLanguagesList();
+
+                          toast.add({
+                            title: "updated",
+                            description: `${book.title} has been succesfully deleted from your databse`,
+                          });
                         }
                       }}
                       type="button"
@@ -301,9 +314,8 @@ export default function DisplayBooks() {
             </article>
           ))}
         </div>
-        <div>{deleteBook}</div>
+
         <p role="status"></p>
-        <button>Language</button>
       </div>
     </main>
   );
