@@ -47,7 +47,7 @@ export default function DisplayBooks() {
     const languagesArray = serverData.languages;
 
     function createArray(languageParam: Array<LanguageList>) {
-      const uniqueValue: any = []
+      const uniqueValue: string[] = []
       for (let index = 0; index < languageParam.length; index++) {
         if (!uniqueValue.includes(languageParam[index].language)) {
           uniqueValue.push(languageParam[index].language)
@@ -104,7 +104,7 @@ export default function DisplayBooks() {
     console.log("2nd use effect languagesList", languagesList);
   }, [languagesList]);
 
-  const deleteBooks = async (bookId: number | undefined) => {
+  const deleteBooks = async (bookId: number | undefined): Promise<boolean> => {
     try {
       if (confirmBookDeletion()) {
         const response = await fetch("/api/books", {
@@ -119,13 +119,14 @@ export default function DisplayBooks() {
 
         if (!data.success) {
           setDeletebook(data.error);
-          return;
+          return false;
         }
 
         setBooks((currentBooks) =>
           currentBooks.filter((book) => book.id !== bookId)
         );
         setDeletebook(data.message);
+        return true;
       }
     } catch (err) {
       setDeletebook(
@@ -134,6 +135,7 @@ export default function DisplayBooks() {
           : "Couldn't delete book"
       );
     }
+    return false;
   };
 
   return (
@@ -282,8 +284,10 @@ export default function DisplayBooks() {
                     </button>
                     <button
                       onClick={async () => {
-                        await deleteBooks(book.id);
-                        updateLanguagesList()
+                        const deleted = await deleteBooks(book.id);
+                        if (deleted) {
+                          await updateLanguagesList();
+                        }
                       }}
                       type="button"
                       aria-label={`Delete ${book.title}`}
