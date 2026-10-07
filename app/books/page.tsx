@@ -25,6 +25,24 @@ export default function DisplayBooks() {
     return window.confirm(`are you sure you want to delete this book`);
   }
 
+  const retrieveBooksPerLanguage = async(language: string) => {
+    const response = await fetch(`/api/retrieve-per-language?language=${encodeURIComponent(language)}`, {
+      method: "GET", 
+      headers: {"Content-type" : "application/json"},
+
+    
+    })
+    if(!response.ok) {
+      throw new Error("something has gone wrong")
+    }
+
+    const data = await response.json()
+
+    console.log("Find many", data)
+
+    setBooks(data.books)
+  }
+
   useEffect(() => {
     const fetchBooks = async () => {
       try {
@@ -113,7 +131,7 @@ export default function DisplayBooks() {
                 : `Your ${books.length} books in one place`}
             </p>
 
-            <Dropdown languages={languagesList} />
+            <Dropdown languages={languagesList} onLanguage={retrieveBooksPerLanguage}/>
           </div>
         </header>
 
