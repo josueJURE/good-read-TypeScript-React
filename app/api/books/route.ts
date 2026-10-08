@@ -5,7 +5,7 @@ import { bookResponseSchema } from "@/app/zod-schemas";
 import { prisma } from "@/lib/prisma";
 import { bookid } from "@/app/zod-schemas";
 import { z } from "zod";
-import { title } from "process";
+
 
 export async function GET() {
   await connection();
@@ -13,9 +13,26 @@ export async function GET() {
   try {
     const books = await prisma.book.findMany();
 
+    const formatter = new Intl.DateTimeFormat("en-UK", {
+      year: 'numeric',
+      month: 'long',
+      day: '2-digit',
+      weekday: 'long'
+    })
+
+  
+    
+   const createdAt =  books.forEach(book => {
+      console.log(`User date: ${book.createdAt}`);
+      console.log(`User date: ${formatter.format(book.createdAt)}`);
+    });
+1
     return NextResponse.json({
       success: true,
       books,
+      createdAt
+      
+
     });
   } catch (error) {
     console.error("Failed to fetch books:", error);
