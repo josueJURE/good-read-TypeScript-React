@@ -28,7 +28,7 @@ export default function Dropdown({ languages, onLanguage }: LanguageProps) {
         >
           {languages.map((language) => (
             <DropdownMenuItem
-            onClick={() => onLanguage(language)}
+              onClick={() => onLanguage(language)}
               key={language}
               className="rounded-md px-3 py-2 text-sm data-highlighted:bg-zinc-100 dark:data-highlighted:bg-zinc-800"
             >
