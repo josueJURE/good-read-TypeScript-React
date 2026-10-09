@@ -26,6 +26,8 @@ async function main() {
       description: "Very good book",
       genre: "Adventures",
       publisher: "Pinguin",
+      startedReading: date.toISOString(),
+      finishedReading: date.toISOString(),
       publishedAt: date.toISOString(),
       coverImageUrl:
         "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcT8MsFjNdwLtylUT63trYXtuUlV_6zA5XAeRZm5P6VG6WQVwSnMQ336iMiE0K_UZCeKIR7sh0Al-fTaQ93esClS7Xc_bKbeaQbbsM2S5ns&usqp=CAc",
@@ -47,6 +49,8 @@ async function main() {
       description: "Very good book",
       genre: "Fantasy",
       publisher: "Pinguin",
+      startedReading: date.toISOString(),
+      finishedReading: date.toISOString(),
       publishedAt: date.toISOString(),
       coverImageUrl:
         "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcStUJwGxaFXqSk79qezML2ZroCdvMNBlC7isYyKrKOEg1xkFGDgQ0zg56R6qrVEcfqORSWka6II0QECYFqZ29WAIsotg5c35WCQ9sKko-757J1KHOws5G2zZmU7Srn1a2dAy12C9YHmvA&usqp=CAc",
@@ -67,6 +71,8 @@ async function main() {
       description: "Book about the Greatest Sportsman of All Times",
       genre: "Sports",
       publisher: "Pinguin",
+      startedReading: date.toISOString(),
+      finishedReading: date.toISOString(),
       publishedAt: date.toISOString(),
       coverImageUrl:
         "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTvYPuc6p33hAzZ2H1Rm5xvCjSb9gvmBA5aLmCuRbkfw&s",
@@ -87,6 +93,8 @@ async function main() {
       description: "Written by JEPH LOEB Art and cover by TIM SALE From the early days of Batman’s crimefighting career, this new edition of the classic mystery involves a killer who strikes only on holidays. Working with Harvey Dent and Lieutenant Gordon, Batman races to discover who Holiday is! Collected from the original 13-issue series",
       genre: "Comics",
       publisher: "DC comics",
+      startedReading: date.toISOString(),
+      finishedReading: date.toISOString(),
       publishedAt: date.toISOString(),
       coverImageUrl:
         "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcSzaM5jzRQUmvqcejeyiF55hKFRh5Zs4VxLhLAX7qMzXX44x28-4Ef4IPodIqUWxwl6BH4ueg3z4mbGWX_stcH8SaE8cYrdR8CyBsOvJPUfv5eZE4ZqI6Oq&usqp=CAc",

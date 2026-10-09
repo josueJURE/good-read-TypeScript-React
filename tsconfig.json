@@ -28,7 +28,7 @@
     "noFallthroughCasesInSwitch": true,
     "allowUnreachableCode": false,
     "noUncheckedIndexedAccess": true,
-    "noPropertyAccessFromIndexSignature": true,
+    "noPropertyAccessFromIndexSignature": false,
     "noImplicitAny": true
    
   },

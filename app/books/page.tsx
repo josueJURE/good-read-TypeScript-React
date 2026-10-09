@@ -233,7 +233,7 @@ export default function DisplayBooks() {
                       </div>
                       <div className="min-w-0 space-y-1">
                         <dt className="text-xs text-zinc-500 dark:text-zinc-400">
-                          Published
+                          Started Reading
                         </dt>
                         <dd className="font-medium">
                           {book.publishedAt ? (
@@ -246,6 +246,22 @@ export default function DisplayBooks() {
                           )}
                         </dd>
                       </div>
+                      <div className="min-w-0 space-y-1">
+                        <dt className="text-xs text-zinc-500 dark:text-zinc-400">
+                          Finished Reading
+                        </dt>
+                        <dd className="font-medium">
+                          {book.publishedAt ? (
+                            <time dateTime={book.publishedAt}>
+                            
+                              {formatter.format( new Date(book.publishedAt))}
+                            </time>
+                          ) : (
+                            "Not listed"
+                          )}
+                        </dd>
+                      </div>
+                      
                       <div className="col-span-2 space-y-1">
                         <dt className="text-xs text-zinc-500 dark:text-zinc-400">
                           ISBN
@@ -254,6 +270,7 @@ export default function DisplayBooks() {
                           {book.isbn}
                         </dd>
                       </div>
+                    
                     </dl>
                   </div>
 

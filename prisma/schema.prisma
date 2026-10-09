@@ -28,6 +28,8 @@ model Book {
   genre           String
   publisher       String?
   publishedAt     DateTime?
+  startedReading  DateTime
+  finishedReading DateTime
   coverImageUrl   String?
   language        String
   createdAt       DateTime @default(now())
