@@ -5,8 +5,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDownIcon } from "lucide-react";
-import Link from "next/link";
-import {MouseEvent} from "react"
+
 
 type LanguageProps = {
   languages: string[];

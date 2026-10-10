@@ -12,6 +12,8 @@ export const bookSchema = z.object({
   publishedAt: z.date().nullish(),
   coverImageUrl: z.url({ protocol: /^https?$/ }).nullish(),
   language: z.string().min(1).max(50),
+  startedReading: z.date(),
+  finishedReading: z.date()
 });
 
 
@@ -37,7 +39,10 @@ export const bookDeletionSchema = z.discriminatedUnion("success", [
 export const bookid = bookSchema.pick({ id: true });
 
 export const bookResponseSchema = bookSchema.extend({
+  // JSON serializes Date objects as ISO datetime strings.
   publishedAt: z.iso.datetime().nullable(),
+  startedReading: z.iso.datetime(),
+  finishedReading: z.iso.datetime(),
 });
 
 

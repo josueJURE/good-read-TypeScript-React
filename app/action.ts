@@ -12,13 +12,26 @@ export async function submitBookInfo(
 
   const publishedAtInput = formData.get("publishedAt");
 
+  const readingStart = formData.get("StartedReading");
+  const readingEnd =  formData.get("FinishedReading")
+
+  console.log("readingStart", readingStart)
+  console.log("readingEnd", readingEnd)
+
+ const readingS =  typeof readingStart === "string" && readingStart.trim() !== ""
+    ? new Date(readingStart)
+    : null;
 
 
+  const readingE =  typeof readingEnd === "string" && readingEnd.trim() !== ""
+    ? new Date(readingEnd)
+    : null;
 
-  const date =
-    typeof publishedAtInput === "string" && publishedAtInput.trim() !== ""
-      ? new Date(publishedAtInput)
-      : null;
+  // {formatter.format( new Date(book.publishedAt))}
+
+  const publishedA = typeof publishedAtInput === "string" && publishedAtInput.trim() !== ""
+    ? new Date(publishedAtInput)
+    : null;
   try {
     const bookSchemaValidation = bookSchema.parse({
       title: formData.get("title"),
@@ -28,13 +41,17 @@ export async function submitBookInfo(
       description: formData.get("description"),
       genre: formData.get("genre"),
       publisher: formData.get("publisher"),
-      publishedAt: date,
+      publishedAt: publishedA,
       coverImageUrl: formData.get("coverImageUrl"),
       language: formData.get("language"),
+      startedReading: readingS,
+      finishedReading: readingE,
     });
 
     const {
       title,
+      startedReading,
+      finishedReading,
       author,
       pageCount,
       isbn,
@@ -49,6 +66,8 @@ export async function submitBookInfo(
     await prisma.book.create({
       data: {
         title,
+        startedReading,
+        finishedReading,
         author,
         pageCount,
         isbn,
@@ -62,8 +81,9 @@ export async function submitBookInfo(
     });
     return { message: "Book information submitted." };
   } catch (err) {
+    console.error("Failed to save book:", err);
     if (err instanceof z.ZodError) {
-      return { message: err.issues[0].message ?? "Invalid book" };
+      return { message: err.issues[0]?.message ?? "Invalid book" };
     }
   }
 

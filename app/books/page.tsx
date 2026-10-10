@@ -236,10 +236,10 @@ export default function DisplayBooks() {
                           Started Reading
                         </dt>
                         <dd className="font-medium">
-                          {book.publishedAt ? (
-                            <time dateTime={book.publishedAt}>
+                          {book.startedReading ? (
+                            <time dateTime={book.startedReading}>
                             
-                              {formatter.format( new Date(book.publishedAt))}
+                              {formatter.format( new Date(book.startedReading))}
                             </time>
                           ) : (
                             "Not listed"
@@ -251,10 +251,10 @@ export default function DisplayBooks() {
                           Finished Reading
                         </dt>
                         <dd className="font-medium">
-                          {book.publishedAt ? (
-                            <time dateTime={book.publishedAt}>
+                          {book.finishedReading ? (
+                            <time dateTime={book.finishedReading}>
                             
-                              {formatter.format( new Date(book.publishedAt))}
+                              {formatter.format( new Date(book.finishedReading))}
                             </time>
                           ) : (
                             "Not listed"
@@ -302,7 +302,7 @@ export default function DisplayBooks() {
         </div>
         <div>{deleteBook}</div>
         <p role="status"></p>
-        <button>Language</button>
+        <button>Languages</button>
       </div>
     </main>
   );

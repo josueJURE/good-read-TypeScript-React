@@ -50,6 +50,8 @@ export default function BookEditForm({
     language: book.language,
     publisher: book.publisher ?? "",
     publishedAt: book.publishedAt?.slice(0, 10) ?? "",
+    startedReading: book.startedReading,
+    finishedReading: book.finishedReading,
     coverImageUrl: book.coverImageUrl ?? "",
     description: book.description ?? "",
   }));

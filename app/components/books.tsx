@@ -97,6 +97,33 @@ export default function Form() {
             />
           </div>
           <div className="min-w-0 space-y-2">
+            <label htmlFor="StartedReading" className={labelClassName}>
+              Started Reading *
+            </label>
+            <input
+              id="StartedReading"
+              // required
+              type="date"
+              name="StartedReading"
+              placeholder="reading start date"
+              className={inputClassName}
+            />
+          </div>
+          <div className="min-w-0 space-y-2">
+            <label htmlFor="FinishedReading" className={labelClassName}>
+              Finished Reading *
+            </label>
+            <input
+              id="FinishedReading"
+              // required
+              type="date"
+              name="FinishedReading"
+              placeholder="finish start date"
+              className={inputClassName}
+            />
+          </div>
+          
+          <div className="min-w-0 space-y-2">
             <label htmlFor="genre" className={labelClassName}>
               Genre *
             </label>
