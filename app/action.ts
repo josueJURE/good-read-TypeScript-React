@@ -13,25 +13,23 @@ export async function submitBookInfo(
   const publishedAtInput = formData.get("publishedAt");
 
   const readingStart = formData.get("StartedReading");
-  const readingEnd =  formData.get("FinishedReading")
+  const readingEnd = formData.get("FinishedReading");
 
-  console.log("readingStart", readingStart)
-  console.log("readingEnd", readingEnd)
+  console.log("readingStart", readingStart);
+  console.log("readingEnd", readingEnd);
 
- const readingS =  typeof readingStart === "string" && readingStart.trim() !== ""
-    ? new Date(readingStart)
-    : null;
+  function narrowDateType(value: FormDataEntryValue | null): Date | null {
+    return typeof value === "string" && value.trim() !== ""
+      ? new Date(value)
+      : null;
+  }
 
+  const readingS = narrowDateType(readingStart);
 
-  const readingE =  typeof readingEnd === "string" && readingEnd.trim() !== ""
-    ? new Date(readingEnd)
-    : null;
+  const readingE = narrowDateType(readingEnd);
 
-  // {formatter.format( new Date(book.publishedAt))}
+  const publishedA = narrowDateType(publishedAtInput);
 
-  const publishedA = typeof publishedAtInput === "string" && publishedAtInput.trim() !== ""
-    ? new Date(publishedAtInput)
-    : null;
   try {
     const bookSchemaValidation = bookSchema.parse({
       title: formData.get("title"),
