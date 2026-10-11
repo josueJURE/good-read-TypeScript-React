@@ -18,17 +18,12 @@ export async function submitBookInfo(
   console.log("readingStart", readingStart);
   console.log("readingEnd", readingEnd);
 
-  function narrowDateType(value: FormDataEntryValue | null): Date | null {
+  function parseFormDate(value: FormDataEntryValue | null): Date | null {
     return typeof value === "string" && value.trim() !== ""
       ? new Date(value)
       : null;
   }
 
-  const readingS = narrowDateType(readingStart);
-
-  const readingE = narrowDateType(readingEnd);
-
-  const publishedA = narrowDateType(publishedAtInput);
 
   try {
     const bookSchemaValidation = bookSchema.parse({
@@ -39,11 +34,11 @@ export async function submitBookInfo(
       description: formData.get("description"),
       genre: formData.get("genre"),
       publisher: formData.get("publisher"),
-      publishedAt: publishedA,
+      publishedAt: parseFormDate(publishedAtInput),
       coverImageUrl: formData.get("coverImageUrl"),
       language: formData.get("language"),
-      startedReading: readingS,
-      finishedReading: readingE,
+      startedReading: parseFormDate(readingStart),
+      finishedReading: parseFormDate(readingEnd),
     });
 
     const {
