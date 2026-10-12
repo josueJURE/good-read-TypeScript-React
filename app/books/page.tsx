@@ -13,6 +13,12 @@ import { z } from "zod";
 import BookEditForm from "../components/book-edit-form";
 import { toast } from "@/components/ui/toast";
 
+
+const start = Date.now()
+
+console.log("start", start)
+console.log("start", typeof start)
+
 export default function DisplayBooks() {
   const [books, setBooks] = useState<bookSchemaType[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -24,30 +30,38 @@ export default function DisplayBooks() {
   function confirmBookDeletion() {
     return window.confirm(`are you sure you want to delete this book`);
   }
+  function getDaysBetweenDates(date1: Date, date2: number): number {
+    const diffInMs = Math.abs(date2 - date1.getTime());
+    return - Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+  }
+
+  const rtf1 = new Intl.RelativeTimeFormat("en", { style: "short" });
+  
 
   const formatter = new Intl.DateTimeFormat("en-UK", {
-    year: 'numeric',
-    month: 'long',
-    day: '2-digit',
-  })
+    year: "numeric",
+    month: "long",
+    day: "2-digit",
+  });
 
-  const retrieveBooksPerLanguage = async(language: string) => {
-    const response = await fetch(`/api/retrieve-per-language?language=${encodeURIComponent(language)}`, {
-      method: "GET", 
-      headers: {"Content-type" : "application/json"},
-
-    
-    })
-    if(!response.ok) {
-      throw new Error("something has gone wrong")
+  const retrieveBooksPerLanguage = async (language: string) => {
+    const response = await fetch(
+      `/api/retrieve-per-language?language=${encodeURIComponent(language)}`,
+      {
+        method: "GET",
+        headers: { "Content-type": "application/json" },
+      }
+    );
+    if (!response.ok) {
+      throw new Error("something has gone wrong");
     }
 
-    const data = await response.json()
+    const data = await response.json();
 
-    console.log("Find many", data)
+    console.log("Find many", data);
 
-    setBooks(data.books)
-  }
+    setBooks(data.books);
+  };
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -64,7 +78,6 @@ export default function DisplayBooks() {
 
         setBooks(data.books);
         console.log("data.books", data.books);
-
 
         const unique = Array.from(
           new Set(
@@ -137,7 +150,10 @@ export default function DisplayBooks() {
                 : `Your ${books.length} books in one place`}
             </p>
 
-            <Dropdown languages={languagesList} onLanguage={retrieveBooksPerLanguage}/>
+            <Dropdown
+              languages={languagesList}
+              onLanguage={retrieveBooksPerLanguage}
+            />
           </div>
         </header>
 
@@ -238,8 +254,7 @@ export default function DisplayBooks() {
                         <dd className="font-medium">
                           {book.startedReading ? (
                             <time dateTime={book.startedReading}>
-                            
-                              {formatter.format( new Date(book.startedReading))}
+                              {formatter.format(new Date(book.startedReading))}
                             </time>
                           ) : (
                             "Not listed"
@@ -253,15 +268,16 @@ export default function DisplayBooks() {
                         <dd className="font-medium">
                           {book.finishedReading ? (
                             <time dateTime={book.finishedReading}>
-                            
-                              {formatter.format( new Date(book.finishedReading))}
+                              {formatter.format(new Date(book.finishedReading))}
                             </time>
                           ) : (
                             "Not listed"
                           )}
                         </dd>
                       </div>
-                      
+                      <div>{book.startedReading}</div>
+                      {/* <div>{relativeTimeFormat()}</div> */}
+
                       <div className="col-span-2 space-y-1">
                         <dt className="text-xs text-zinc-500 dark:text-zinc-400">
                           ISBN
@@ -270,9 +286,12 @@ export default function DisplayBooks() {
                           {book.isbn}
                         </dd>
                       </div>
-                    
                     </dl>
                   </div>
+                  <div>started reading {rtf1.format(getDaysBetweenDates( new Date(book.startedReading), Date.now()), "day")}</div>
+                  {/* <div>{getDaysBetweenDates(new Date(book.startedReading), Date.now())}</div> */}
+
+                  {/* <div>{getDaysBetweenDates(new Date(book.startedReading), Date.now())}</div> */}
 
                   <footer className="flex justify-between border-t border-zinc-200 bg-zinc-50/70 px-6 py-4 dark:border-zinc-800 dark:bg-zinc-950/30">
                     <button

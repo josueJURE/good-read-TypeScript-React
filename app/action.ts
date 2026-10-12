@@ -15,15 +15,11 @@ export async function submitBookInfo(
   const readingStart = formData.get("StartedReading");
   const readingEnd = formData.get("FinishedReading");
 
-  console.log("readingStart", readingStart);
-  console.log("readingEnd", readingEnd);
-
   function parseFormDate(value: FormDataEntryValue | null): Date | null {
     return typeof value === "string" && value.trim() !== ""
       ? new Date(value)
       : null;
   }
-
 
   try {
     const bookSchemaValidation = bookSchema.parse({
