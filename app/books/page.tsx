@@ -13,11 +13,18 @@ import { z } from "zod";
 import BookEditForm from "../components/book-edit-form";
 import { toast } from "@/components/ui/toast";
 
+const formatter = new Intl.DateTimeFormat("en-UK", {
+  year: "2-digit",
+  month: "short",
+  day: "2-digit",
+});
 
-const start = Date.now()
+function getDaysBetweenDates(date1: Date, date2: number): number {
+  const diffInMs = Math.abs(date2 - date1.getTime());
+  return -Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+}
 
-console.log("start", start)
-console.log("start", typeof start)
+const rtf1 = new Intl.RelativeTimeFormat("en", { style: "short" });
 
 export default function DisplayBooks() {
   const [books, setBooks] = useState<bookSchemaType[]>([]);
@@ -30,19 +37,6 @@ export default function DisplayBooks() {
   function confirmBookDeletion() {
     return window.confirm(`are you sure you want to delete this book`);
   }
-  function getDaysBetweenDates(date1: Date, date2: number): number {
-    const diffInMs = Math.abs(date2 - date1.getTime());
-    return - Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-  }
-
-  const rtf1 = new Intl.RelativeTimeFormat("en", { style: "short" });
-  
-
-  const formatter = new Intl.DateTimeFormat("en-UK", {
-    year: "numeric",
-    month: "long",
-    day: "2-digit",
-  });
 
   const retrieveBooksPerLanguage = async (language: string) => {
     const response = await fetch(
@@ -247,14 +241,21 @@ export default function DisplayBooks() {
                           {book.publisher || "Not listed"}
                         </dd>
                       </div>
-                      <div className="min-w-0 space-y-1">
+                      <div className="col-span-2 min-w-0 space-y-1">
                         <dt className="text-xs text-zinc-500 dark:text-zinc-400">
                           Started Reading
                         </dt>
-                        <dd className="font-medium">
+                        <dd className="font-medium whitespace-nowrap">
                           {book.startedReading ? (
                             <time dateTime={book.startedReading}>
-                              {formatter.format(new Date(book.startedReading))}
+                              {formatter.format(new Date(book.startedReading))}{" "}
+                              ({rtf1.format(
+                                getDaysBetweenDates(
+                                  new Date(book.startedReading),
+                                  Date.now()
+                                ),
+                                "day"
+                              )})
                             </time>
                           ) : (
                             "Not listed"
@@ -267,16 +268,18 @@ export default function DisplayBooks() {
                         </dt>
                         <dd className="font-medium">
                           {book.finishedReading ? (
+                      
                             <time dateTime={book.finishedReading}>
                               {formatter.format(new Date(book.finishedReading))}
+                              
                             </time>
+                         
+                           
                           ) : (
                             "Not listed"
                           )}
                         </dd>
                       </div>
-                      <div>{book.startedReading}</div>
-                      {/* <div>{relativeTimeFormat()}</div> */}
 
                       <div className="col-span-2 space-y-1">
                         <dt className="text-xs text-zinc-500 dark:text-zinc-400">
@@ -288,10 +291,12 @@ export default function DisplayBooks() {
                       </div>
                     </dl>
                   </div>
-                  <div>started reading {rtf1.format(getDaysBetweenDates( new Date(book.startedReading), Date.now()), "day")}</div>
-                  {/* <div>{getDaysBetweenDates(new Date(book.startedReading), Date.now())}</div> */}
+                  <div className="px-6 pb-6">
+                  
+                  </div>
 
-                  {/* <div>{getDaysBetweenDates(new Date(book.startedReading), Date.now())}</div> */}
+
+
 
                   <footer className="flex justify-between border-t border-zinc-200 bg-zinc-50/70 px-6 py-4 dark:border-zinc-800 dark:bg-zinc-950/30">
                     <button
