@@ -29,6 +29,8 @@ const fields: {
   { name: "language", label: "Language", required: true, maxLength: 50 },
   { name: "publisher", label: "Publisher", maxLength: 50 },
   { name: "publishedAt", label: "Published date", type: "date" },
+  { name: "startedReading", label: "Started Reading", type: "date" },
+  { name: "finishedReading", label: "Finished Reading", type: "date"},
   { name: "coverImageUrl", label: "Cover image URL", type: "url" },
 ];
 
@@ -82,6 +84,8 @@ export default function BookEditForm({
           ? book.publishedAt
           : `${draft.publishedAt}T00:00:00.000Z`
         : null,
+        startedReading: `${draft.startedReading}T00:00:00.000Z`,
+        finishedReading:`${draft.finishedReading}T00:00:00.000Z` ,
     });
 
     if (!result.success) {
