@@ -19,8 +19,8 @@ const formatter = new Intl.DateTimeFormat("en-UK", {
   day: "2-digit",
 });
 
-function getDaysBetweenDates(date1: Date, date2: number): number {
-  const diffInMs = Math.abs(date2 - date1.getTime());
+function getDaysBetweenDates(date1: Date, date2: Date): number {
+  const diffInMs = Math.abs(date2.getTime() - date1.getTime());
   return Math.floor(diffInMs / (1000 * 60 * 60 * 24));
 }
 
@@ -28,6 +28,7 @@ const rtf1 = new Intl.RelativeTimeFormat("en", { style: "short" });
 
 export default function DisplayBooks() {
   const [books, setBooks] = useState<bookSchemaType[]>([]);
+
   const [error, setError] = useState<string | null>(null);
   const [deleteBook, setDeletebook] = useState<string | null>(null);
   const [editingBook, setEditingBook] = useState<bookSchemaType | null>(null);
@@ -253,7 +254,7 @@ export default function DisplayBooks() {
                               {rtf1.format(
                                 - getDaysBetweenDates(
                                   new Date(book.startedReading),
-                                  Date.now()
+                                  new Date(Date.now())
                                 ),
                                 "day"
                               )}
@@ -277,11 +278,13 @@ export default function DisplayBooks() {
                                 )}
                               </time>
                               <div className="text-xs text-zinc-500 dark:text-zinc-400">
+                             
                                 book read in {" "} {rtf1.format(
                                 // Calendar days involved: You read on October 9, October 10, and October 11, which spans 3 days. Hence 1+
+                               
                                 1 + getDaysBetweenDates(
                                   new Date(book.finishedReading),
-                                  Date.now()
+                                  new Date(book.startedReading)
                                 ),
                                 "day"
                               )}
