@@ -30,12 +30,24 @@ const fields: {
   { name: "publisher", label: "Publisher", maxLength: 50 },
   { name: "publishedAt", label: "Published date", type: "date" },
   { name: "startedReading", label: "Started Reading", type: "date" },
-  { name: "finishedReading", label: "Finished Reading", type: "date"},
+  { name: "finishedReading", label: "Finished Reading", type: "date" },
   { name: "coverImageUrl", label: "Cover image URL", type: "url" },
 ];
 
 const inputClassName =
   "w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50";
+
+//  export function formatDateToYYYYMMDD(date: Date): string {
+//    return (
+//      date.getFullYear() +
+//      String(date.getMonth() + 1).padStart(2, '0') +
+//      String(date.getDate()).padStart(2, '0')
+//    );
+//  }
+
+function formatDateToYYYYMMDD(date: string): string {
+  return `${date}T00:00:00.000Z`;
+}
 
 export default function BookEditForm({
   book,
@@ -59,7 +71,6 @@ export default function BookEditForm({
   }));
   const [error, setError] = useState<string | null>(null);
 
-
   function updateField(name: keyof BookDraft, value: string) {
     setDraft((current) => ({ ...current, [name]: value }));
     setError(null);
@@ -82,10 +93,10 @@ export default function BookEditForm({
       publishedAt: draft.publishedAt
         ? draft.publishedAt === book.publishedAt?.slice(0, 10)
           ? book.publishedAt
-          : `${draft.publishedAt}T00:00:00.000Z`
+          : formatDateToYYYYMMDD(draft.publishedAt)
         : null,
-        startedReading: `${draft.startedReading}T00:00:00.000Z`,
-        finishedReading:`${draft.finishedReading}T00:00:00.000Z` ,
+      startedReading: formatDateToYYYYMMDD(draft.startedReading),
+      finishedReading: formatDateToYYYYMMDD(draft.finishedReading),
     });
 
     if (!result.success) {
@@ -97,25 +108,22 @@ export default function BookEditForm({
       return;
     }
 
-    const response  = await fetch('/api/books', {
+    const response = await fetch("/api/books", {
       method: "PATCH",
-      headers: {"Content-Type" : "application/json"},
-      body: JSON.stringify({updatedBook: result.data})
-    })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ updatedBook: result.data }),
+    });
 
-    if(!response.ok) {
+    if (!response.ok) {
       throw new Error(`${response.status}`);
     }
 
-    const serverResponse = await response.json() 
+    const serverResponse = await response.json();
 
-    console.log(serverResponse.message)
-   
-
-  
+    console.log(serverResponse.message);
 
     onSave(result.data, serverResponse.message);
-  }
+  };
 
   return (
     <form
