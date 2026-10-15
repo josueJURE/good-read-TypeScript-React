@@ -29,23 +29,16 @@ const fields: {
   { name: "language", label: "Language", required: true, maxLength: 50 },
   { name: "publisher", label: "Publisher", maxLength: 50 },
   { name: "publishedAt", label: "Published date", type: "date" },
-  { name: "startedReading", label: "Started Reading", type: "date" },
-  { name: "finishedReading", label: "Finished Reading", type: "date" },
+  { name: "startedReading", label: "Started Reading", type: "date", required: true },
+  { name: "finishedReading", label: "Finished Reading", type: "date", required: true },
   { name: "coverImageUrl", label: "Cover image URL", type: "url" },
 ];
 
 const inputClassName =
   "w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50";
 
-//  export function formatDateToYYYYMMDD(date: Date): string {
-//    return (
-//      date.getFullYear() +
-//      String(date.getMonth() + 1).padStart(2, '0') +
-//      String(date.getDate()).padStart(2, '0')
-//    );
-//  }
-
-function formatDateToYYYYMMDD(date: string): string {
+// Store date input values (YYYY-MM-DD) at midnight UTC.
+function dateInputToIsoString(date: string): string {
   return `${date}T00:00:00.000Z`;
 }
 
@@ -64,8 +57,8 @@ export default function BookEditForm({
     language: book.language,
     publisher: book.publisher ?? "",
     publishedAt: book.publishedAt?.slice(0, 10) ?? "",
-    startedReading: book.startedReading,
-    finishedReading: book.finishedReading,
+    startedReading: book.startedReading.slice(0, 10),
+    finishedReading: book.finishedReading.slice(0, 10),
     coverImageUrl: book.coverImageUrl ?? "",
     description: book.description ?? "",
   }));
@@ -93,10 +86,16 @@ export default function BookEditForm({
       publishedAt: draft.publishedAt
         ? draft.publishedAt === book.publishedAt?.slice(0, 10)
           ? book.publishedAt
-          : formatDateToYYYYMMDD(draft.publishedAt)
+          : dateInputToIsoString(draft.publishedAt)
         : null,
-      startedReading: formatDateToYYYYMMDD(draft.startedReading),
-      finishedReading: formatDateToYYYYMMDD(draft.finishedReading),
+      startedReading:
+        draft.startedReading === book.startedReading.slice(0, 10)
+          ? book.startedReading
+          : dateInputToIsoString(draft.startedReading),
+      finishedReading:
+        draft.finishedReading === book.finishedReading.slice(0, 10)
+          ? book.finishedReading
+          : dateInputToIsoString(draft.finishedReading),
     });
 
     if (!result.success) {
