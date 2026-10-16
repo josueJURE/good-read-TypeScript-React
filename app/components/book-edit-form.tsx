@@ -52,11 +52,13 @@ function dateInputToIsoString(date: string): string {
   return `${date}T00:00:00.000Z`;
 }
 
-
+function trimToNull(input: string | null): string | null {
+  return input?.trim() || null;
+}
 
 function resolveDateInput(
   draftDate: string,
-  originalDate: string | null,
+  originalDate: string | null
 ): string | null {
   if (!draftDate) return null;
   if (draftDate === originalDate?.slice(0, 10)) return originalDate;
@@ -102,12 +104,18 @@ export default function BookEditForm({
       language: draft.language.trim(),
       isbn: draft.isbn.trim(),
       pageCount: Number(draft.pageCount),
-      publisher: draft.publisher.trim() || null,
-      description: draft.description.trim() || null,
-      coverImageUrl: draft.coverImageUrl.trim() || null,
+      publisher: trimToNull(draft.publisher),
+      description: trimToNull(draft.description),
+      coverImageUrl: trimToNull(draft.coverImageUrl),
       publishedAt: resolveDateInput(draft.publishedAt, book.publishedAt),
-      startedReading: resolveDateInput(draft.startedReading, book.startedReading),
-      finishedReading: resolveDateInput(draft.finishedReading, book.finishedReading)
+      startedReading: resolveDateInput(
+        draft.startedReading,
+        book.startedReading
+      ),
+      finishedReading: resolveDateInput(
+        draft.finishedReading,
+        book.finishedReading
+      ),
     });
 
     if (!result.success) {
