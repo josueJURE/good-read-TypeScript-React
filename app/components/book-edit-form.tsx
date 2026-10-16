@@ -29,8 +29,18 @@ const fields: {
   { name: "language", label: "Language", required: true, maxLength: 50 },
   { name: "publisher", label: "Publisher", maxLength: 50 },
   { name: "publishedAt", label: "Published date", type: "date" },
-  { name: "startedReading", label: "Started Reading", type: "date", required: true },
-  { name: "finishedReading", label: "Finished Reading", type: "date", required: true },
+  {
+    name: "startedReading",
+    label: "Started Reading",
+    type: "date",
+    required: true,
+  },
+  {
+    name: "finishedReading",
+    label: "Finished Reading",
+    type: "date",
+    required: true,
+  },
   { name: "coverImageUrl", label: "Cover image URL", type: "url" },
 ];
 
@@ -40,6 +50,18 @@ const inputClassName =
 // Store date input values (YYYY-MM-DD) at midnight UTC.
 function dateInputToIsoString(date: string): string {
   return `${date}T00:00:00.000Z`;
+}
+
+
+
+function resolveDateInput(
+  draftDate: string,
+  originalDate: string | null,
+): string | null {
+  if (!draftDate) return null;
+  if (draftDate === originalDate?.slice(0, 10)) return originalDate;
+
+  return dateInputToIsoString(draftDate);
 }
 
 export default function BookEditForm({
@@ -83,19 +105,9 @@ export default function BookEditForm({
       publisher: draft.publisher.trim() || null,
       description: draft.description.trim() || null,
       coverImageUrl: draft.coverImageUrl.trim() || null,
-      publishedAt: draft.publishedAt
-        ? draft.publishedAt === book.publishedAt?.slice(0, 10)
-          ? book.publishedAt
-          : dateInputToIsoString(draft.publishedAt)
-        : null,
-      startedReading:
-        draft.startedReading === book.startedReading.slice(0, 10)
-          ? book.startedReading
-          : dateInputToIsoString(draft.startedReading),
-      finishedReading:
-        draft.finishedReading === book.finishedReading.slice(0, 10)
-          ? book.finishedReading
-          : dateInputToIsoString(draft.finishedReading),
+      publishedAt: resolveDateInput(draft.publishedAt, book.publishedAt),
+      startedReading: resolveDateInput(draft.startedReading, book.startedReading),
+      finishedReading: resolveDateInput(draft.finishedReading, book.finishedReading)
     });
 
     if (!result.success) {

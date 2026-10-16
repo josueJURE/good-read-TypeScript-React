@@ -17,17 +17,36 @@ const formatter = new Intl.DateTimeFormat("en-UK", {
   year: "2-digit",
   month: "short",
   day: "2-digit",
+  timeZone: "UTC",
 });
 
-function getDaysBetweenDates(date1: Date, date2: Date): number {
-  const diffInMs = Math.abs(date2.getTime() - date1.getTime());
-  return Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+// Signed calendar-day difference in UTC: end minus start, ignoring time of day.
+function getDaysBetweenDates(start: Date, end: Date): number {
+  const millisecondsPerDay = 1000 * 60 * 60 * 24;
+  return (
+    Math.floor(end.getTime() / millisecondsPerDay) -
+    Math.floor(start.getTime() / millisecondsPerDay)
+  );
 }
 
-const rtf1 = new Intl.RelativeTimeFormat("en", { style: "short" });
+function formatReadingDuration(start: Date, end: Date): string {
+  const difference = getDaysBetweenDates(start, end);
+  if (!Number.isFinite(difference)) return "Reading dates unavailable";
+  if (difference < 0) return "Finish date is before start date";
+
+  // Include both the starting and finishing calendar dates.
+  const days = difference + 1;
+  return `Book read in ${days.toLocaleString("en")} ${days === 1 ? "day" : "days"}`;
+}
+
+const relativeTimeFormatter = new Intl.RelativeTimeFormat("en", {
+  style: "short",
+  numeric: "auto",
+});
 
 export default function DisplayBooks() {
   const [books, setBooks] = useState<bookSchemaType[]>([]);
+  const [currentDate, setCurrentDate] = useState<Date | null>(null);
 
   const [error, setError] = useState<string | null>(null);
   const [deleteBook, setDeletebook] = useState<string | null>(null);
@@ -72,6 +91,7 @@ export default function DisplayBooks() {
         }
 
         setBooks(data.books);
+        setCurrentDate(new Date());
         console.log("data.books", data.books);
 
         const unique = Array.from(
@@ -93,6 +113,10 @@ export default function DisplayBooks() {
       }
     };
     void fetchBooks();
+    const clockInterval = window.setInterval(() => {
+      setCurrentDate(new Date());
+    }, 60_000);
+    return () => window.clearInterval(clockInterval);
   }, []);
 
   useEffect(() => {
@@ -249,16 +273,20 @@ export default function DisplayBooks() {
                         <dd className="font-medium whitespace-nowrap">
                           {book.startedReading ? (
                             <time dateTime={book.startedReading}>
-                              {formatter.format(new Date(book.startedReading))}{" "}
-                              (
-                              {rtf1.format(
-                                - getDaysBetweenDates(
-                                  new Date(book.startedReading),
-                                  new Date(Date.now())
-                                ),
-                                "day"
+                              {formatter.format(new Date(book.startedReading))}
+                              {currentDate && (
+                                <>
+                                  {" "}(
+                                  {relativeTimeFormatter.format(
+                                    getDaysBetweenDates(
+                                      currentDate,
+                                      new Date(book.startedReading)
+                                    ),
+                                    "day"
+                                  )}
+                                  )
+                                </>
                               )}
-                              )
                             </time>
                           ) : (
                             "Not listed"
@@ -269,7 +297,7 @@ export default function DisplayBooks() {
                         <dt className="text-xs text-zinc-500 dark:text-zinc-400">
                           Finished Reading
                         </dt>
-                        <dt className="font-medium">
+                        <dd className="font-medium">
                           {book.finishedReading ? (
                             <div>
                               <time dateTime={book.finishedReading}>
@@ -278,22 +306,16 @@ export default function DisplayBooks() {
                                 )}
                               </time>
                               <div className="text-xs text-zinc-500 dark:text-zinc-400">
-                             
-                                book read in {" "} {rtf1.format(
-                                // Calendar days involved: You read on October 9, October 10, and October 11, which spans 3 days. Hence 1+
-                               
-                                1 + getDaysBetweenDates(
-                                  new Date(book.finishedReading),
-                                  new Date(book.startedReading)
-                                ),
-                                "day"
-                              )}
+                                {formatReadingDuration(
+                                  new Date(book.startedReading),
+                                  new Date(book.finishedReading)
+                                )}
                               </div>
                             </div>
                           ) : (
                             "Not listed"
                           )}
-                        </dt>
+                        </dd>
                       </div>
 
                       <div className="col-span-2 space-y-1">
