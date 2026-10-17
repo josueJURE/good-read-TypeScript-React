@@ -9,7 +9,7 @@ type BookDraft = {
 
 type BookEditFormProps = {
   book: bookSchemaType;
-  onSave: (book: bookSchemaType, message: string) => void;
+  onSave: (book: bookSchemaType, message: string, startedReading: string, endReading: string) => void;
   onCancel: () => void;
 };
 
@@ -141,7 +141,7 @@ export default function BookEditForm({
 
     console.log(serverResponse.message);
 
-    onSave(result.data, serverResponse.message);
+    onSave(result.data, serverResponse.message, result.data.startedReading, result.data.finishedReading);
   };
 
   return (
@@ -213,6 +213,7 @@ export default function BookEditForm({
       </div>
 
       <footer className="flex flex-wrap justify-end gap-3 border-t border-zinc-200 bg-zinc-50/70 px-6 py-4 dark:border-zinc-800 dark:bg-zinc-950/30">
+       
         <button
           type="button"
           onClick={onCancel}

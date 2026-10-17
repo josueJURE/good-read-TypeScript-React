@@ -36,7 +36,9 @@ function formatReadingDuration(start: Date, end: Date): string {
 
   // Include both the starting and finishing calendar dates.
   const days = difference + 1;
-  return `Book read in ${days.toLocaleString("en")} ${days === 1 ? "day" : "days"}`;
+  return `Book read in ${days.toLocaleString("en")} ${
+    days === 1 ? "day" : "days"
+  }`;
 }
 
 const relativeTimeFormatter = new Intl.RelativeTimeFormat("en", {
@@ -49,13 +51,31 @@ export default function DisplayBooks() {
   const [currentDate, setCurrentDate] = useState<Date | null>(null);
 
   const [error, setError] = useState<string | null>(null);
+  // const [Dateerro, setError] = useState<string | null>(null);
   const [deleteBook, setDeletebook] = useState<string | null>(null);
   const [editingBook, setEditingBook] = useState<bookSchemaType | null>(null);
   const [update, setUpdate] = useState<string | null>(null);
   const [languagesList, setLanguagesList] = useState<string[]>([]);
-
+  const [isStartDateInFuture, setIsStartDateInFuture] = useState<
+    boolean | null
+  >(null);
   function confirmBookDeletion() {
     return window.confirm(`are you sure you want to delete this book`);
+  }
+
+  async function readingDateInFuture(start: Date, end: Date): Promise<void> {
+    const difference = getDaysBetweenDates(start, end);
+    if (!Number.isFinite(difference)) {
+      setError("Reading dates unavailable");
+      setIsStartDateInFuture(false);
+    }
+
+
+    if (difference < 0) {
+      setError("Finish date is before start date man");
+      setIsStartDateInFuture(false);
+    }
+    return 
   }
 
   const retrieveBooksPerLanguage = async (language: string) => {
@@ -136,10 +156,14 @@ export default function DisplayBooks() {
         }
         const data = bookDeletionSchema.parse(await response.json());
 
+    
+
         if (!data.success) {
           setDeletebook(data.error);
           return;
         }
+
+      
 
         setBooks((currentBooks) =>
           currentBooks.filter((book) => book.id !== bookId)
@@ -196,6 +220,9 @@ export default function DisplayBooks() {
                   book={book}
                   onCancel={() => setEditingBook(null)}
                   onSave={(updatedBook, message) => {
+                    console.log("updatedBook", updatedBook)
+                    readingDateInFuture(new Date(updatedBook.startedReading.slice(0, 10)), new Date(updatedBook.finishedReading.slice(0, 10)))
+                    if (!isStartDateInFuture) return 
                     setBooks((currentBooks) =>
                       currentBooks.map((currentBook) =>
                         currentBook === book ? updatedBook : currentBook
@@ -276,7 +303,8 @@ export default function DisplayBooks() {
                               {formatter.format(new Date(book.startedReading))}
                               {currentDate && (
                                 <>
-                                  {" "}(
+                                  {" "}
+                                  (
                                   {relativeTimeFormatter.format(
                                     getDaysBetweenDates(
                                       currentDate,
