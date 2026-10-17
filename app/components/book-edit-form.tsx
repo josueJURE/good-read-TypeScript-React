@@ -8,8 +8,14 @@ type BookDraft = {
 };
 
 type BookEditFormProps = {
+
   book: bookSchemaType;
-  onSave: (book: bookSchemaType, message: string, startedReading: string, endReading: string) => void;
+  onSave: (
+    book: bookSchemaType,
+    message: string,
+    areDateValid: boolean
+   
+  ) => void;
   onCancel: () => void;
 };
 
@@ -70,6 +76,8 @@ export default function BookEditForm({
   book,
   onSave,
   onCancel,
+
+ 
 }: BookEditFormProps) {
   const formId = useId();
   const [draft, setDraft] = useState<BookDraft>(() => ({
@@ -87,10 +95,36 @@ export default function BookEditForm({
     description: book.description ?? "",
   }));
   const [error, setError] = useState<string | null>(null);
+  const [isStartDateInFuture, setIsStartDateInFuture] =
+    useState<boolean>(false);
 
   function updateField(name: keyof BookDraft, value: string) {
     setDraft((current) => ({ ...current, [name]: value }));
     setError(null);
+  }
+
+  function getDaysBetweenDates(start: Date, end: Date): number {
+    const millisecondsPerDay = 1000 * 60 * 60 * 24;
+    return (
+      Math.floor(end.getTime() / millisecondsPerDay) -
+      Math.floor(start.getTime() / millisecondsPerDay)
+    );
+  }
+
+  function validateReadingDates(start: Date, end: Date): boolean {
+    const difference = getDaysBetweenDates(start, end);
+    let value = false
+    if (!Number.isFinite(difference)) {
+      setError("Reading dates unavailable");
+      value = true
+    }
+
+    if (difference < 0) {
+      setError("Start reading date is in the future");
+      value = true;
+    }
+
+    return value
   }
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -114,7 +148,8 @@ export default function BookEditForm({
       ),
       finishedReading: resolveDateInput(
         draft.finishedReading,
-        book.finishedReading
+        book.finishedReading,
+        
       ),
     });
 
@@ -126,6 +161,19 @@ export default function BookEditForm({
       setError(`${label}: ${issue?.message ?? "Please check this field."}`);
       return;
     }
+
+    if (!result.data) return;
+
+    const dateError =  validateReadingDates(
+      new Date(result.data.startedReading.slice(0, 10)),
+      new Date(result.data.finishedReading.slice(0, 10))
+    );
+
+    if (dateError) {
+      return
+
+    }
+  
 
     const response = await fetch("/api/books", {
       method: "PATCH",
@@ -141,7 +189,12 @@ export default function BookEditForm({
 
     console.log(serverResponse.message);
 
-    onSave(result.data, serverResponse.message, result.data.startedReading, result.data.finishedReading);
+    onSave(
+      result.data,
+      serverResponse.message,
+      dateError
+     
+    );
   };
 
   return (
@@ -213,7 +266,8 @@ export default function BookEditForm({
       </div>
 
       <footer className="flex flex-wrap justify-end gap-3 border-t border-zinc-200 bg-zinc-50/70 px-6 py-4 dark:border-zinc-800 dark:bg-zinc-950/30">
-       
+        {/* <div spellCheck={isStartDateInFuture}></div> */}
+
         <button
           type="button"
           onClick={onCancel}

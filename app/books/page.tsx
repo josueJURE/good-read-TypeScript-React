@@ -50,7 +50,7 @@ export default function DisplayBooks() {
   const [books, setBooks] = useState<bookSchemaType[]>([]);
   const [currentDate, setCurrentDate] = useState<Date | null>(null);
 
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null | undefined>(null);
   // const [Dateerro, setError] = useState<string | null>(null);
   const [deleteBook, setDeletebook] = useState<string | null>(null);
   const [editingBook, setEditingBook] = useState<bookSchemaType | null>(null);
@@ -63,20 +63,6 @@ export default function DisplayBooks() {
     return window.confirm(`are you sure you want to delete this book`);
   }
 
-  async function readingDateInFuture(start: Date, end: Date): Promise<void> {
-    const difference = getDaysBetweenDates(start, end);
-    if (!Number.isFinite(difference)) {
-      setError("Reading dates unavailable");
-      setIsStartDateInFuture(false);
-    }
-
-
-    if (difference < 0) {
-      setError("Finish date is before start date man");
-      setIsStartDateInFuture(false);
-    }
-    return 
-  }
 
   const retrieveBooksPerLanguage = async (language: string) => {
     const response = await fetch(
@@ -156,14 +142,10 @@ export default function DisplayBooks() {
         }
         const data = bookDeletionSchema.parse(await response.json());
 
-    
-
         if (!data.success) {
           setDeletebook(data.error);
           return;
         }
-
-      
 
         setBooks((currentBooks) =>
           currentBooks.filter((book) => book.id !== bookId)
@@ -219,10 +201,12 @@ export default function DisplayBooks() {
                 <BookEditForm
                   book={book}
                   onCancel={() => setEditingBook(null)}
-                  onSave={(updatedBook, message) => {
-                    console.log("updatedBook", updatedBook)
-                    readingDateInFuture(new Date(updatedBook.startedReading.slice(0, 10)), new Date(updatedBook.finishedReading.slice(0, 10)))
-                    if (!isStartDateInFuture) return 
+                  onSave={(updatedBook, message, value) => {
+                    console.log("updatedBook", updatedBook);
+                    console.log("value", value)
+
+                    if(value) return 
+
                     setBooks((currentBooks) =>
                       currentBooks.map((currentBook) =>
                         currentBook === book ? updatedBook : currentBook
