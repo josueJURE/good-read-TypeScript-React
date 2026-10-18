@@ -2,6 +2,7 @@
 
 import { useId, useState, type FormEvent } from "react";
 import { bookResponseSchema, type bookSchemaType } from "../zod-schemas";
+import { da } from "zod/locales";
 
 type BookDraft = {
   [Field in Exclude<keyof bookSchemaType, "id">]-?: string;
@@ -120,7 +121,7 @@ export default function BookEditForm({
     }
 
     if (difference < 0) {
-      setError("Start reading date is in the future");
+      // setError("Start reading date is in the future");
       value = true;
     }
 
@@ -170,8 +171,23 @@ export default function BookEditForm({
     );
 
     if (dateError) {
+      setError("Start reading date is in the future");
       return
 
+    }
+
+
+    if (!result.data.publishedAt) return 
+
+    const datePuBlishingError = validateReadingDates(
+      new Date(result.data.publishedAt.slice(0, 10)),
+      new Date(result.data.startedReading.slice(0, 10))
+     
+    )
+
+    if(datePuBlishingError) {
+      setError("reading date can't be prior to publishing date")
+      return
     }
   
 
