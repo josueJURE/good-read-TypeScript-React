@@ -9,13 +9,11 @@ type BookDraft = {
 };
 
 type BookEditFormProps = {
-
   book: bookSchemaType;
   onSave: (
     book: bookSchemaType,
     message: string,
     areDateValid: boolean
-   
   ) => void;
   onCancel: () => void;
 };
@@ -77,8 +75,6 @@ export default function BookEditForm({
   book,
   onSave,
   onCancel,
-
- 
 }: BookEditFormProps) {
   const formId = useId();
   const [draft, setDraft] = useState<BookDraft>(() => ({
@@ -96,14 +92,13 @@ export default function BookEditForm({
     description: book.description ?? "",
   }));
   const [error, setError] = useState<string | null>(null);
-  const [isStartDateInFuture, setIsStartDateInFuture] =
-    useState<boolean>(false);
 
   function updateField(name: keyof BookDraft, value: string) {
     setDraft((current) => ({ ...current, [name]: value }));
     setError(null);
   }
 
+  // write test
   function getDaysBetweenDates(start: Date, end: Date): number {
     const millisecondsPerDay = 1000 * 60 * 60 * 24;
     return (
@@ -114,10 +109,10 @@ export default function BookEditForm({
 
   function validateReadingDates(start: Date, end: Date): boolean {
     const difference = getDaysBetweenDates(start, end);
-    let value = false
+    let value = false;
     if (!Number.isFinite(difference)) {
       setError("Reading dates unavailable");
-      value = true
+      value = true;
     }
 
     if (difference < 0) {
@@ -125,7 +120,7 @@ export default function BookEditForm({
       value = true;
     }
 
-    return value
+    return value;
   }
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -149,8 +144,7 @@ export default function BookEditForm({
       ),
       finishedReading: resolveDateInput(
         draft.finishedReading,
-        book.finishedReading,
-        
+        book.finishedReading
       ),
     });
 
@@ -163,33 +157,32 @@ export default function BookEditForm({
       return;
     }
 
-    if (!result.data) return;
+    if (!result.data) {
+      setError("can't retirieve data")
+      return 
+    } 
 
-    const dateError =  validateReadingDates(
+    const dateError = validateReadingDates(
       new Date(result.data.startedReading.slice(0, 10)),
       new Date(result.data.finishedReading.slice(0, 10))
     );
 
     if (dateError) {
       setError("Start reading date is in the future");
-      return
-
+      return;
     }
 
-
-    if (!result.data.publishedAt) return 
+    if (!result.data.publishedAt) return;
 
     const datePuBlishingError = validateReadingDates(
       new Date(result.data.publishedAt.slice(0, 10)),
       new Date(result.data.startedReading.slice(0, 10))
-     
-    )
+    );
 
-    if(datePuBlishingError) {
-      setError("reading date can't be prior to publishing date")
-      return
+    if (datePuBlishingError) {
+      setError("reading date can't be prior to publishing date");
+      return;
     }
-  
 
     const response = await fetch("/api/books", {
       method: "PATCH",
@@ -205,12 +198,7 @@ export default function BookEditForm({
 
     console.log(serverResponse.message);
 
-    onSave(
-      result.data,
-      serverResponse.message,
-      dateError
-     
-    );
+    onSave(result.data, serverResponse.message, dateError);
   };
 
   return (

@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 export async function GET(request: NextRequest) {
   const languageValidation = bookSchema.shape.language
     .trim()
+    .min(1)
     .safeParse(request.nextUrl.searchParams.get("language"));
 
     console.log("languageValidation", languageValidation.data)
@@ -23,6 +24,8 @@ export async function GET(request: NextRequest) {
     const books = await prisma.book.findMany({
       where: { language: languageValidation.data },
     });
+
+    console.log("books", books)
 
     return NextResponse.json({ success: true, books });
   } catch (error) {

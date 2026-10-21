@@ -29,6 +29,13 @@ function getDaysBetweenDates(start: Date, end: Date): number {
   );
 }
 
+function getUniqueBookValues(
+  books: bookSchemaType[],
+  field: "language" | "genre"
+): string[] {
+  return Array.from(new Set(books.map((book) => book[field])));
+}
+
 function formatReadingDuration(start: Date, end: Date): string {
   const difference = getDaysBetweenDates(start, end);
   if (!Number.isFinite(difference)) return "Reading dates unavailable";
@@ -56,13 +63,11 @@ export default function DisplayBooks() {
   const [editingBook, setEditingBook] = useState<bookSchemaType | null>(null);
   const [update, setUpdate] = useState<string | null>(null);
   const [languagesList, setLanguagesList] = useState<string[]>([]);
-  const [isStartDateInFuture, setIsStartDateInFuture] = useState<
-    boolean | null
-  >(null);
+  const [genreList, setGenreList] = useState<string[]>([]);
+
   function confirmBookDeletion() {
     return window.confirm(`are you sure you want to delete this book`);
   }
-
 
   const retrieveBooksPerLanguage = async (language: string) => {
     const response = await fetch(
@@ -83,6 +88,32 @@ export default function DisplayBooks() {
     setBooks(data.books);
   };
 
+  const retrieveBooksPerGenre = async (genre: string) => {
+    setError(null);
+    try {
+      const response = await fetch(
+        `/api/retrieve-per-genre?genre=${encodeURIComponent(genre)}`
+      );
+      const data = bookSchemaResponseSchema.parse(await response.json());
+
+      if (!data.success) {
+        setError(data.error);
+        return;
+      }
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+      setBooks(data.books);
+    } catch (err) {
+      setError(
+        err instanceof z.ZodError
+          ? err.issues[0]?.message ?? "Invalid book response"
+          : err instanceof Error
+          ? err.message
+          : "Could not load books by genre"
+      );
+    }
+  };
   useEffect(() => {
     const fetchBooks = async () => {
       try {
@@ -100,14 +131,8 @@ export default function DisplayBooks() {
         setCurrentDate(new Date());
         console.log("data.books", data.books);
 
-        const unique = Array.from(
-          new Set(
-            data.books.map((book) => {
-              return book.language;
-            })
-          )
-        );
-        setLanguagesList(unique);
+        setLanguagesList(getUniqueBookValues(data.books, "language"));
+        setGenreList(getUniqueBookValues(data.books, "genre"));
       } catch (err) {
         setError(
           err instanceof z.ZodError
@@ -176,8 +201,14 @@ export default function DisplayBooks() {
             </p>
 
             <Dropdown
-              languages={languagesList}
-              onLanguage={retrieveBooksPerLanguage}
+              label="Languages"
+              options={languagesList}
+              onSelect={retrieveBooksPerLanguage}
+            />
+            <Dropdown
+              label="Genres"
+              options={genreList}
+              onSelect={retrieveBooksPerGenre}
             />
           </div>
         </header>
@@ -203,9 +234,9 @@ export default function DisplayBooks() {
                   onCancel={() => setEditingBook(null)}
                   onSave={(updatedBook, message, value) => {
                     console.log("updatedBook", updatedBook);
-                    console.log("value", value)
+                    console.log("value", value);
 
-                    if(value) return 
+                    if (value) return;
 
                     setBooks((currentBooks) =>
                       currentBooks.map((currentBook) =>
