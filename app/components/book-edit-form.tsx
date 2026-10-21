@@ -50,7 +50,7 @@ const fields: {
 ];
 
 const inputClassName =
-  "w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50";
+  "w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 dark:border-zinc-700 dark:bg-zinc-950";
 
 // Store date input values (YYYY-MM-DD) at midnight UTC.
 function dateInputToIsoString(date: string): string {
@@ -92,10 +92,12 @@ export default function BookEditForm({
     description: book.description ?? "",
   }));
   const [error, setError] = useState<string | null>(null);
+  const [hasDateError, setHasDateError] = useState(false);
 
   function updateField(name: keyof BookDraft, value: string) {
     setDraft((current) => ({ ...current, [name]: value }));
     setError(null);
+    setHasDateError(false);
   }
 
   // write test
@@ -166,6 +168,7 @@ export default function BookEditForm({
       new Date(result.data.startedReading.slice(0, 10)),
       new Date(result.data.finishedReading.slice(0, 10))
     );
+    setHasDateError(dateError);
 
     if (dateError) {
       setError("Start reading date is in the future");
@@ -239,7 +242,11 @@ export default function BookEditForm({
               step={type === "number" ? 1 : undefined}
               max={type === "date" ? "9999-12-31" : undefined}
               autoFocus={name === "title"}
-              className={inputClassName}
+              className={`${inputClassName} ${
+                name === "startedReading" && hasDateError
+                  ? "text-red-600 dark:text-red-400"
+                  : "text-zinc-950 dark:text-zinc-50"
+              }`}
             />
           </div>
         ))}
@@ -258,7 +265,7 @@ export default function BookEditForm({
             onChange={(event) => updateField("description", event.target.value)}
             rows={5}
             maxLength={8000}
-            className={`${inputClassName} resize-y`}
+            className={`${inputClassName} resize-y text-zinc-950 dark:text-zinc-50`}
           />
         </div>
 
