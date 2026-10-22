@@ -52,6 +52,8 @@ const fields: {
 const inputClassName =
   "w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 dark:border-zinc-700 dark:bg-zinc-950";
 
+  const labelClassName = "block text-sm font-medium"
+
 // Store date input values (YYYY-MM-DD) at midnight UTC.
 function dateInputToIsoString(date: string): string {
   return `${date}T00:00:00.000Z`;
@@ -227,7 +229,11 @@ export default function BookEditForm({
           <div key={name} className="space-y-1.5">
             <label
               htmlFor={`${formId}-${name}`}
-              className="block text-sm font-medium"
+              className={`${labelClassName} ${
+                name === "startedReading" && hasDateError
+                  ? "text-red-600 dark:text-red-400"
+                  : "text-zinc-950 dark:text-zinc-50"
+              }`}
             >
               {label}
             </label>
