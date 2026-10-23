@@ -2,7 +2,6 @@
 
 import { useId, useState, type FormEvent } from "react";
 import { bookResponseSchema, type bookSchemaType } from "../zod-schemas";
-import { da } from "zod/locales";
 
 type BookDraft = {
   [Field in Exclude<keyof bookSchemaType, "id">]-?: string;
@@ -52,11 +51,23 @@ const fields: {
 const inputClassName =
   "w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 dark:border-zinc-700 dark:bg-zinc-950";
 
-  const labelClassName = "block text-sm font-medium"
+const labelClassName = "block text-sm font-medium";
 
 // Store date input values (YYYY-MM-DD) at midnight UTC.
 function dateInputToIsoString(date: string): string {
   return `${date}T00:00:00.000Z`;
+}
+
+function baseClassName(
+  inputClassName: string,
+  getFieldClassName: keyof BookDraft,
+  hasError: boolean,
+) {
+  return `${inputClassName} ${
+    getFieldClassName === "startedReading" && hasError
+      ? "text-red-600 dark:text-red-400"
+      : "text-zinc-950 dark:text-zinc-50"
+  }`;
 }
 
 function trimToNull(input: string | null): string | null {
@@ -162,9 +173,9 @@ export default function BookEditForm({
     }
 
     if (!result.data) {
-      setError("can't retirieve data")
-      return 
-    } 
+      setError("can't retirieve data");
+      return;
+    }
 
     const dateError = validateReadingDates(
       new Date(result.data.startedReading.slice(0, 10)),
@@ -229,11 +240,7 @@ export default function BookEditForm({
           <div key={name} className="space-y-1.5">
             <label
               htmlFor={`${formId}-${name}`}
-              className={`${labelClassName} ${
-                name === "startedReading" && hasDateError
-                  ? "text-red-600 dark:text-red-400"
-                  : "text-zinc-950 dark:text-zinc-50"
-              }`}
+              className={baseClassName(labelClassName, name, hasDateError)}
             >
               {label}
             </label>
@@ -248,11 +255,7 @@ export default function BookEditForm({
               step={type === "number" ? 1 : undefined}
               max={type === "date" ? "9999-12-31" : undefined}
               autoFocus={name === "title"}
-              className={`${inputClassName} ${
-                name === "startedReading" && hasDateError
-                  ? "text-red-600 dark:text-red-400"
-                  : "text-zinc-950 dark:text-zinc-50"
-              }`}
+              className={baseClassName(inputClassName, name, hasDateError)}
             />
           </div>
         ))}
