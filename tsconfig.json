@@ -29,7 +29,9 @@
     "allowUnreachableCode": false,
     "noUncheckedIndexedAccess": true,
     "noPropertyAccessFromIndexSignature": false,
-    "noImplicitAny": true
+    "noImplicitAny": true,
+   
+    
    
   },
   "include": [

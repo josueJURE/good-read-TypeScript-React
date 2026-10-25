@@ -58,17 +58,20 @@ function dateInputToIsoString(date: string): string {
   return `${date}T00:00:00.000Z`;
 }
 
-function baseClassName(
-  inputClassName: string,
-  getFieldClassName: keyof BookDraft,
-  hasError: boolean,
-) {
-  return `${inputClassName} ${
-    getFieldClassName === "startedReading" && hasError
+function getFieldClassName(
+  baseClassName: string,
+  hasError: boolean
+): string {
+  return `${baseClassName} ${
+    hasError
       ? "text-red-600 dark:text-red-400"
       : "text-zinc-950 dark:text-zinc-50"
   }`;
 }
+
+
+// 
+
 
 function trimToNull(input: string | null): string | null {
   return input?.trim() || null;
@@ -105,12 +108,14 @@ export default function BookEditForm({
     description: book.description ?? "",
   }));
   const [error, setError] = useState<string | null>(null);
-  const [hasDateError, setHasDateError] = useState(false);
+  const [dateErrorField, setDateErrorField] = useState<
+    "startedReading" | "publishedAt" | null
+  >(null);
 
   function updateField(name: keyof BookDraft, value: string) {
     setDraft((current) => ({ ...current, [name]: value }));
     setError(null);
-    setHasDateError(false);
+    setDateErrorField(null);
   }
 
   // write test
@@ -181,10 +186,9 @@ export default function BookEditForm({
       new Date(result.data.startedReading.slice(0, 10)),
       new Date(result.data.finishedReading.slice(0, 10))
     );
-    setHasDateError(dateError);
-
     if (dateError) {
-      setError("Start reading date is in the future");
+      setDateErrorField("startedReading");
+      setError("Started reading date can't be after finished reading date");
       return;
     }
 
@@ -196,7 +200,8 @@ export default function BookEditForm({
     );
 
     if (datePuBlishingError) {
-      setError("reading date can't be prior to publishing date");
+      setDateErrorField("publishedAt");
+      setError("Published date can't be after started reading date");
       return;
     }
 
@@ -240,7 +245,7 @@ export default function BookEditForm({
           <div key={name} className="space-y-1.5">
             <label
               htmlFor={`${formId}-${name}`}
-              className={baseClassName(labelClassName, name, hasDateError)}
+              className={getFieldClassName(labelClassName, name === dateErrorField)}
             >
               {label}
             </label>
@@ -255,7 +260,8 @@ export default function BookEditForm({
               step={type === "number" ? 1 : undefined}
               max={type === "date" ? "9999-12-31" : undefined}
               autoFocus={name === "title"}
-              className={baseClassName(inputClassName, name, hasDateError)}
+              aria-invalid={name === dateErrorField || undefined}
+              className={getFieldClassName(inputClassName, name === dateErrorField)}
             />
           </div>
         ))}
@@ -296,6 +302,7 @@ export default function BookEditForm({
           Cancel
         </button>
         <button
+
           type="submit"
           className="rounded-lg bg-zinc-950 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 dark:bg-zinc-50 dark:text-zinc-950 dark:hover:bg-zinc-200"
         >
