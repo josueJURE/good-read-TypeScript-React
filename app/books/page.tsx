@@ -13,42 +13,107 @@ import { z } from "zod";
 import BookEditForm from "../components/book-edit-form";
 import { toast } from "@/components/ui/toast";
 
+const formatter = new Intl.DateTimeFormat("en-UK", {
+  year: "2-digit",
+  month: "short",
+  day: "2-digit",
+  timeZone: "UTC",
+});
+
+// Signed calendar-day difference in UTC: end minus start, ignoring time of day.
+function getDaysBetweenDates(start: Date, end: Date): number {
+  const millisecondsPerDay = 1000 * 60 * 60 * 24;
+  return (
+    Math.floor(end.getTime() / millisecondsPerDay) -
+    Math.floor(start.getTime() / millisecondsPerDay)
+  );
+}
+
+function getUniqueBookValues(
+  books: bookSchemaType[],
+  field: "language" | "genre"
+): string[] {
+  return Array.from(new Set(books.map((book) => book[field])));
+}
+
+function formatReadingDuration(start: Date, end: Date): string {
+  const difference = getDaysBetweenDates(start, end);
+  if (!Number.isFinite(difference)) return "Reading dates unavailable";
+  if (difference < 0) return "Finish date is before start date";
+
+  // Include both the starting and finishing calendar dates.
+  const days = difference + 1;
+  return `Book read in ${days.toLocaleString("en")} ${
+    days === 1 ? "day" : "days"
+  }`;
+}
+
+const relativeTimeFormatter = new Intl.RelativeTimeFormat("en", {
+  style: "short",
+  numeric: "auto",
+});
+
 export default function DisplayBooks() {
   const [books, setBooks] = useState<bookSchemaType[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [currentDate, setCurrentDate] = useState<Date | null>(null);
+
+  const [error, setError] = useState<string | null | undefined>(null);
+  // const [Dateerro, setError] = useState<string | null>(null);
   const [deleteBook, setDeletebook] = useState<string | null>(null);
   const [editingBook, setEditingBook] = useState<bookSchemaType | null>(null);
   const [update, setUpdate] = useState<string | null>(null);
   const [languagesList, setLanguagesList] = useState<string[]>([]);
+  const [genreList, setGenreList] = useState<string[]>([]);
 
   function confirmBookDeletion() {
     return window.confirm(`are you sure you want to delete this book`);
   }
 
-  const formatter = new Intl.DateTimeFormat("en-UK", {
-    year: 'numeric',
-    month: 'long',
-    day: '2-digit',
-  })
-
-  const retrieveBooksPerLanguage = async(language: string) => {
-    const response = await fetch(`/api/retrieve-per-language?language=${encodeURIComponent(language)}`, {
-      method: "GET", 
-      headers: {"Content-type" : "application/json"},
-
-    
-    })
-    if(!response.ok) {
-      throw new Error("something has gone wrong")
+  const retrieveBooksPerLanguage = async (language: string) => {
+    const response = await fetch(
+      `/api/retrieve-per-language?language=${encodeURIComponent(language)}`,
+      {
+        method: "GET",
+        headers: { "Content-type": "application/json" },
+      }
+    );
+    if (!response.ok) {
+      throw new Error("something has gone wrong");
     }
 
-    const data = await response.json()
+    const data = await response.json();
 
-    console.log("Find many", data)
+    console.log("Find many", data);
 
-    setBooks(data.books)
-  }
+    setBooks(data.books);
+  };
 
+  const retrieveBooksPerGenre = async (genre: string) => {
+    setError(null);
+    try {
+      const response = await fetch(
+        `/api/retrieve-per-genre?genre=${encodeURIComponent(genre)}`
+      );
+      const data = bookSchemaResponseSchema.parse(await response.json());
+
+      if (!data.success) {
+        setError(data.error);
+        return;
+      }
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+      setBooks(data.books);
+    } catch (err) {
+      setError(
+        err instanceof z.ZodError
+          ? err.issues[0]?.message ?? "Invalid book response"
+          : err instanceof Error
+          ? err.message
+          : "Could not load books by genre"
+      );
+    }
+  };
   useEffect(() => {
     const fetchBooks = async () => {
       try {
@@ -63,17 +128,11 @@ export default function DisplayBooks() {
         }
 
         setBooks(data.books);
+        setCurrentDate(new Date());
         console.log("data.books", data.books);
 
-
-        const unique = Array.from(
-          new Set(
-            data.books.map((book) => {
-              return book.language;
-            })
-          )
-        );
-        setLanguagesList(unique);
+        setLanguagesList(getUniqueBookValues(data.books, "language"));
+        setGenreList(getUniqueBookValues(data.books, "genre"));
       } catch (err) {
         setError(
           err instanceof z.ZodError
@@ -85,6 +144,10 @@ export default function DisplayBooks() {
       }
     };
     void fetchBooks();
+    const clockInterval = window.setInterval(() => {
+      setCurrentDate(new Date());
+    }, 60_000);
+    return () => window.clearInterval(clockInterval);
   }, []);
 
   useEffect(() => {
@@ -137,7 +200,16 @@ export default function DisplayBooks() {
                 : `Your ${books.length} books in one place`}
             </p>
 
-            <Dropdown languages={languagesList} onLanguage={retrieveBooksPerLanguage}/>
+            <Dropdown
+              label="Languages"
+              options={languagesList}
+              onSelect={retrieveBooksPerLanguage}
+            />
+            <Dropdown
+              label="Genres"
+              options={genreList}
+              onSelect={retrieveBooksPerGenre}
+            />
           </div>
         </header>
 
@@ -160,7 +232,12 @@ export default function DisplayBooks() {
                 <BookEditForm
                   book={book}
                   onCancel={() => setEditingBook(null)}
-                  onSave={(updatedBook, message) => {
+                  onSave={(updatedBook, message, value) => {
+                    console.log("updatedBook", updatedBook);
+                    console.log("value", value);
+
+                    if (value) return;
+
                     setBooks((currentBooks) =>
                       currentBooks.map((currentBook) =>
                         currentBook === book ? updatedBook : currentBook
@@ -231,21 +308,59 @@ export default function DisplayBooks() {
                           {book.publisher || "Not listed"}
                         </dd>
                       </div>
-                      <div className="min-w-0 space-y-1">
+                      <div className="col-span-2 min-w-0 space-y-1">
                         <dt className="text-xs text-zinc-500 dark:text-zinc-400">
-                          Published
+                          Started Reading
                         </dt>
-                        <dd className="font-medium">
-                          {book.publishedAt ? (
-                            <time dateTime={book.publishedAt}>
-                            
-                              {formatter.format( new Date(book.publishedAt))}
+                        <dd className="font-medium whitespace-nowrap">
+                          {book.startedReading ? (
+                            <time dateTime={book.startedReading}>
+                              {formatter.format(new Date(book.startedReading))}
+                              {currentDate && (
+                                <>
+                                  {" "}
+                                  (
+                                  {relativeTimeFormatter.format(
+                                    getDaysBetweenDates(
+                                      currentDate,
+                                      new Date(book.startedReading)
+                                    ),
+                                    "day"
+                                  )}
+                                  )
+                                </>
+                              )}
                             </time>
                           ) : (
                             "Not listed"
                           )}
                         </dd>
                       </div>
+                      <div className="min-w-0 space-y-1">
+                        <dt className="text-xs text-zinc-500 dark:text-zinc-400">
+                          Finished Reading
+                        </dt>
+                        <dd className="font-medium">
+                          {book.finishedReading ? (
+                            <div>
+                              <time dateTime={book.finishedReading}>
+                                {formatter.format(
+                                  new Date(book.finishedReading)
+                                )}
+                              </time>
+                              <div className="text-xs text-zinc-500 dark:text-zinc-400">
+                                {formatReadingDuration(
+                                  new Date(book.startedReading),
+                                  new Date(book.finishedReading)
+                                )}
+                              </div>
+                            </div>
+                          ) : (
+                            "Not listed"
+                          )}
+                        </dd>
+                      </div>
+
                       <div className="col-span-2 space-y-1">
                         <dt className="text-xs text-zinc-500 dark:text-zinc-400">
                           ISBN
@@ -256,6 +371,7 @@ export default function DisplayBooks() {
                       </div>
                     </dl>
                   </div>
+                  <div className="px-6 pb-6"></div>
 
                   <footer className="flex justify-between border-t border-zinc-200 bg-zinc-50/70 px-6 py-4 dark:border-zinc-800 dark:bg-zinc-950/30">
                     <button
@@ -285,7 +401,7 @@ export default function DisplayBooks() {
         </div>
         <div>{deleteBook}</div>
         <p role="status"></p>
-        <button>Language</button>
+        <button>Languages</button>
       </div>
     </main>
   );

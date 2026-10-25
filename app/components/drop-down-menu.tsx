@@ -5,34 +5,33 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDownIcon } from "lucide-react";
-import Link from "next/link";
-import {MouseEvent} from "react"
 
-type LanguageProps = {
-  languages: string[];
-  onLanguage: (param: string) => Promise<void>
 
+type DropdownProps = {
+  label: string;
+  options: string[];
+  onSelect: (value: string) => Promise<void>;
 };
 
-export default function Dropdown({ languages, onLanguage }: LanguageProps) {
+export default function Dropdown({ label, options, onSelect }: DropdownProps) {
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger className="inline-flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm font-medium shadow-xs hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:bg-zinc-800">
-          Languages
+          {label}
           <ChevronDownIcon aria-hidden="true" className="size-4" />
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="end"
           className="min-w-44 rounded-lg border border-zinc-200 bg-white p-1 text-zinc-950 shadow-md dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
         >
-          {languages.map((language) => (
+          {options.map((option) => (
             <DropdownMenuItem
-              onClick={() => onLanguage(language)}
-              key={language}
+              onClick={() => onSelect(option)}
+              key={option}
               className="rounded-md px-3 py-2 text-sm data-highlighted:bg-zinc-100 dark:data-highlighted:bg-zinc-800"
             >
-              {language}
+              {option}
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>

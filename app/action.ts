@@ -12,13 +12,15 @@ export async function submitBookInfo(
 
   const publishedAtInput = formData.get("publishedAt");
 
+  const readingStart = formData.get("StartedReading");
+  const readingEnd = formData.get("FinishedReading");
 
-
-
-  const date =
-    typeof publishedAtInput === "string" && publishedAtInput.trim() !== ""
-      ? new Date(publishedAtInput)
+  function parseFormDate(value: FormDataEntryValue | null): Date | null {
+    return typeof value === "string" && value.trim() !== ""
+      ? new Date(value)
       : null;
+  }
+
   try {
     const bookSchemaValidation = bookSchema.parse({
       title: formData.get("title"),
@@ -28,13 +30,17 @@ export async function submitBookInfo(
       description: formData.get("description"),
       genre: formData.get("genre"),
       publisher: formData.get("publisher"),
-      publishedAt: date,
+      publishedAt: parseFormDate(publishedAtInput),
       coverImageUrl: formData.get("coverImageUrl"),
       language: formData.get("language"),
+      startedReading: parseFormDate(readingStart),
+      finishedReading: parseFormDate(readingEnd),
     });
 
     const {
       title,
+      startedReading,
+      finishedReading,
       author,
       pageCount,
       isbn,
@@ -49,6 +55,8 @@ export async function submitBookInfo(
     await prisma.book.create({
       data: {
         title,
+        startedReading,
+        finishedReading,
         author,
         pageCount,
         isbn,
@@ -62,8 +70,9 @@ export async function submitBookInfo(
     });
     return { message: "Book information submitted." };
   } catch (err) {
+    console.error("Failed to save book:", err);
     if (err instanceof z.ZodError) {
-      return { message: err.issues[0].message ?? "Invalid book" };
+      return { message: err.issues[0]?.message ?? "Invalid book" };
     }
   }
 

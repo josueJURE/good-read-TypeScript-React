@@ -9,7 +9,11 @@ type BookDraft = {
 
 type BookEditFormProps = {
   book: bookSchemaType;
-  onSave: (book: bookSchemaType, message: string) => void;
+  onSave: (
+    book: bookSchemaType,
+    message: string,
+    areDateValid: boolean
+  ) => void;
   onCancel: () => void;
 };
 
@@ -29,11 +33,56 @@ const fields: {
   { name: "language", label: "Language", required: true, maxLength: 50 },
   { name: "publisher", label: "Publisher", maxLength: 50 },
   { name: "publishedAt", label: "Published date", type: "date" },
+  {
+    name: "startedReading",
+    label: "Started Reading",
+    type: "date",
+    required: true,
+  },
+  {
+    name: "finishedReading",
+    label: "Finished Reading",
+    type: "date",
+    required: true,
+  },
   { name: "coverImageUrl", label: "Cover image URL", type: "url" },
 ];
 
 const inputClassName =
-  "w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50";
+  "w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 dark:border-zinc-700 dark:bg-zinc-950";
+
+const labelClassName = "block text-sm font-medium";
+
+// Store date input values (YYYY-MM-DD) at midnight UTC.
+function dateInputToIsoString(date: string): string {
+  return `${date}T00:00:00.000Z`;
+}
+
+function baseClassName(
+  inputClassName: string,
+  getFieldClassName: keyof BookDraft,
+  hasError: boolean,
+) {
+  return `${inputClassName} ${
+    getFieldClassName === "startedReading" && hasError
+      ? "text-red-600 dark:text-red-400"
+      : "text-zinc-950 dark:text-zinc-50"
+  }`;
+}
+
+function trimToNull(input: string | null): string | null {
+  return input?.trim() || null;
+}
+
+function resolveDateInput(
+  draftDate: string,
+  originalDate: string | null
+): string | null {
+  if (!draftDate) return null;
+  if (draftDate === originalDate?.slice(0, 10)) return originalDate;
+
+  return dateInputToIsoString(draftDate);
+}
 
 export default function BookEditForm({
   book,
@@ -50,15 +99,43 @@ export default function BookEditForm({
     language: book.language,
     publisher: book.publisher ?? "",
     publishedAt: book.publishedAt?.slice(0, 10) ?? "",
+    startedReading: book.startedReading.slice(0, 10),
+    finishedReading: book.finishedReading.slice(0, 10),
     coverImageUrl: book.coverImageUrl ?? "",
     description: book.description ?? "",
   }));
   const [error, setError] = useState<string | null>(null);
-
+  const [hasDateError, setHasDateError] = useState(false);
 
   function updateField(name: keyof BookDraft, value: string) {
     setDraft((current) => ({ ...current, [name]: value }));
     setError(null);
+    setHasDateError(false);
+  }
+
+  // write test
+  function getDaysBetweenDates(start: Date, end: Date): number {
+    const millisecondsPerDay = 1000 * 60 * 60 * 24;
+    return (
+      Math.floor(end.getTime() / millisecondsPerDay) -
+      Math.floor(start.getTime() / millisecondsPerDay)
+    );
+  }
+
+  function validateReadingDates(start: Date, end: Date): boolean {
+    const difference = getDaysBetweenDates(start, end);
+    let value = false;
+    if (!Number.isFinite(difference)) {
+      setError("Reading dates unavailable");
+      value = true;
+    }
+
+    if (difference < 0) {
+      // setError("Start reading date is in the future");
+      value = true;
+    }
+
+    return value;
   }
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -72,14 +149,18 @@ export default function BookEditForm({
       language: draft.language.trim(),
       isbn: draft.isbn.trim(),
       pageCount: Number(draft.pageCount),
-      publisher: draft.publisher.trim() || null,
-      description: draft.description.trim() || null,
-      coverImageUrl: draft.coverImageUrl.trim() || null,
-      publishedAt: draft.publishedAt
-        ? draft.publishedAt === book.publishedAt?.slice(0, 10)
-          ? book.publishedAt
-          : `${draft.publishedAt}T00:00:00.000Z`
-        : null,
+      publisher: trimToNull(draft.publisher),
+      description: trimToNull(draft.description),
+      coverImageUrl: trimToNull(draft.coverImageUrl),
+      publishedAt: resolveDateInput(draft.publishedAt, book.publishedAt),
+      startedReading: resolveDateInput(
+        draft.startedReading,
+        book.startedReading
+      ),
+      finishedReading: resolveDateInput(
+        draft.finishedReading,
+        book.finishedReading
+      ),
     });
 
     if (!result.success) {
@@ -91,25 +172,50 @@ export default function BookEditForm({
       return;
     }
 
-    const response  = await fetch('/api/books', {
-      method: "PATCH",
-      headers: {"Content-Type" : "application/json"},
-      body: JSON.stringify({updatedBook: result.data})
-    })
+    if (!result.data) {
+      setError("can't retirieve data");
+      return;
+    }
 
-    if(!response.ok) {
+    const dateError = validateReadingDates(
+      new Date(result.data.startedReading.slice(0, 10)),
+      new Date(result.data.finishedReading.slice(0, 10))
+    );
+    setHasDateError(dateError);
+
+    if (dateError) {
+      setError("Start reading date is in the future");
+      return;
+    }
+
+    if (!result.data.publishedAt) return;
+
+    const datePuBlishingError = validateReadingDates(
+      new Date(result.data.publishedAt.slice(0, 10)),
+      new Date(result.data.startedReading.slice(0, 10))
+    );
+
+    if (datePuBlishingError) {
+      setError("reading date can't be prior to publishing date");
+      return;
+    }
+
+    const response = await fetch("/api/books", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ updatedBook: result.data }),
+    });
+
+    if (!response.ok) {
       throw new Error(`${response.status}`);
     }
 
-    const serverResponse = await response.json() 
+    const serverResponse = await response.json();
 
-    console.log(serverResponse.message)
-   
+    console.log(serverResponse.message);
 
-  
-
-    onSave(result.data, serverResponse.message);
-  }
+    onSave(result.data, serverResponse.message, dateError);
+  };
 
   return (
     <form
@@ -134,7 +240,7 @@ export default function BookEditForm({
           <div key={name} className="space-y-1.5">
             <label
               htmlFor={`${formId}-${name}`}
-              className="block text-sm font-medium"
+              className={baseClassName(labelClassName, name, hasDateError)}
             >
               {label}
             </label>
@@ -149,7 +255,7 @@ export default function BookEditForm({
               step={type === "number" ? 1 : undefined}
               max={type === "date" ? "9999-12-31" : undefined}
               autoFocus={name === "title"}
-              className={inputClassName}
+              className={baseClassName(inputClassName, name, hasDateError)}
             />
           </div>
         ))}
@@ -168,7 +274,7 @@ export default function BookEditForm({
             onChange={(event) => updateField("description", event.target.value)}
             rows={5}
             maxLength={8000}
-            className={`${inputClassName} resize-y`}
+            className={`${inputClassName} resize-y text-zinc-950 dark:text-zinc-50`}
           />
         </div>
 
@@ -180,6 +286,8 @@ export default function BookEditForm({
       </div>
 
       <footer className="flex flex-wrap justify-end gap-3 border-t border-zinc-200 bg-zinc-50/70 px-6 py-4 dark:border-zinc-800 dark:bg-zinc-950/30">
+        {/* <div spellCheck={isStartDateInFuture}></div> */}
+
         <button
           type="button"
           onClick={onCancel}
