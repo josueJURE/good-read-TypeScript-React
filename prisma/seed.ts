@@ -3,6 +3,7 @@ import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../app/generated/prisma/client";
 
+
 // import { PrismaClient } from "../app/generated/prisma/client";
 
 const date = new Date(0);
@@ -18,6 +19,7 @@ async function main() {
     where: { id: 1 },
     update: {},
     create: {
+
       id: 1,
       title: "Tom Saywer",
       author: "Mark Twain",
@@ -26,6 +28,7 @@ async function main() {
       description: "Very good book",
       genre: "Adventures",
       publisher: "Pinguin",
+      digital: false,
       startedReading: date.toISOString(),
       finishedReading: date.toISOString(),
       publishedAt: date.toISOString(),
@@ -34,6 +37,9 @@ async function main() {
       language: "English",
       createdAt: date.toISOString(),
       updatedAt: date.toISOString(),
+     
+      
+  
     },
   });
 
@@ -49,6 +55,7 @@ async function main() {
       description: "Very good book",
       genre: "Fantasy",
       publisher: "Pinguin",
+      digital: false,
       startedReading: date.toISOString(),
       finishedReading: date.toISOString(),
       publishedAt: date.toISOString(),
@@ -71,6 +78,7 @@ async function main() {
       description: "Book about the Greatest Sportsman of All Times",
       genre: "Sports",
       publisher: "Pinguin",
+      digital: false,
       startedReading: date.toISOString(),
       finishedReading: date.toISOString(),
       publishedAt: date.toISOString(),
@@ -93,6 +101,7 @@ async function main() {
       description: "Written by JEPH LOEB Art and cover by TIM SALE From the early days of Batman’s crimefighting career, this new edition of the classic mystery involves a killer who strikes only on holidays. Working with Harvey Dent and Lieutenant Gordon, Batman races to discover who Holiday is! Collected from the original 13-issue series",
       genre: "Comics",
       publisher: "DC comics",
+      digital: false,
       startedReading: date.toISOString(),
       finishedReading: date.toISOString(),
       publishedAt: date.toISOString(),

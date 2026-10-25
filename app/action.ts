@@ -35,6 +35,7 @@ export async function submitBookInfo(
       language: formData.get("language"),
       startedReading: parseFormDate(readingStart),
       finishedReading: parseFormDate(readingEnd),
+      digital: formData.get("digital")
     });
 
     const {
@@ -50,6 +51,8 @@ export async function submitBookInfo(
       publishedAt,
       coverImageUrl,
       language,
+      digital
+      
     } = bookSchemaValidation;
 
     await prisma.book.create({
@@ -66,6 +69,8 @@ export async function submitBookInfo(
         publishedAt,
         coverImageUrl,
         language,
+        digital
+     
       },
     });
     return { message: "Book information submitted." };

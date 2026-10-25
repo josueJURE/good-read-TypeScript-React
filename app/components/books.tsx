@@ -110,6 +110,19 @@ export default function Form() {
             />
           </div>
           <div className="min-w-0 space-y-2">
+            <label htmlFor="digital" className={labelClassName}>
+              Digital *
+            </label>
+            <input
+              id="digital"
+              // required
+              type=""
+              name="digital"
+              placeholder="reading start date"
+              className={inputClassName}
+            />
+          </div>
+          <div className="min-w-0 space-y-2">
             <label htmlFor="FinishedReading" className={labelClassName}>
               Finished Reading *
             </label>

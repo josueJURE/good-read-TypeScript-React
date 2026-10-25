@@ -13,7 +13,8 @@ export const bookSchema = z.object({
   coverImageUrl: z.url({ protocol: /^https?$/ }).nullish(),
   language: z.string().min(1).max(50),
   startedReading: z.date(),
-  finishedReading: z.date()
+  finishedReading: z.date(),
+  digital: z.boolean()
 });
 
 
