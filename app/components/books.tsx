@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { submitBookInfo } from "../action";
 
 const initialState = {
@@ -17,6 +17,15 @@ export default function Form() {
     submitBookInfo,
     initialState
   );
+
+  const [isDigital, setIsDigital] = useState<boolean>(false)
+
+  function handleFormat() {
+    setIsDigital(prev => !prev)
+  }
+
+
+
   return (
     <>
       <form
@@ -109,19 +118,7 @@ export default function Form() {
               className={inputClassName}
             />
           </div>
-          <div className="min-w-0 space-y-2">
-            <label htmlFor="digital" className={labelClassName}>
-              Digital *
-            </label>
-            <input
-              id="digital"
-              // required
-              type=""
-              name="digital"
-              placeholder="reading start date"
-              className={inputClassName}
-            />
-          </div>
+         
           <div className="min-w-0 space-y-2">
             <label htmlFor="FinishedReading" className={labelClassName}>
               Finished Reading *
@@ -184,6 +181,19 @@ export default function Form() {
               name="language"
               placeholder="e.g. English"
               className={inputClassName}
+            />
+          </div>
+          <div className="min-w-0 space-y-2">
+            <label htmlFor="digital" className={labelClassName}>
+              Digital *
+            </label>
+            <input
+              id="digital"
+              // required
+              type="checkbox"
+              name="digital"
+              onChange={handleFormat}
+              checked={isDigital}
             />
           </div>
           <div className="min-w-0 space-y-2 sm:col-span-2">
