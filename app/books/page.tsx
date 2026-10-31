@@ -256,6 +256,7 @@ export default function DisplayBooks() {
                   {book.coverImageUrl && (
                     <div className="relative h-56 border-b border-zinc-200 bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-800/50">
                       <Image
+                       loading="eager"
                         src={book.coverImageUrl}
                         alt={`Cover of ${book.title}`}
                         fill

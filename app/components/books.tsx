@@ -18,11 +18,9 @@ export default function Form() {
     initialState
   );
 
-  const [isDigital, setIsDigital] = useState<boolean>(false)
+  const [isDigital, setIsDigital] = useState(false)
 
-  function handleFormat() {
-    setIsDigital(prev => !prev)
-  }
+
 
 
 
@@ -192,7 +190,7 @@ export default function Form() {
               // required
               type="checkbox"
               name="digital"
-              onChange={handleFormat}
+              onChange={(e) => setIsDigital(e.target.checked)}
               checked={isDigital}
             />
           </div>
