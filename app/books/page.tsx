@@ -8,6 +8,14 @@ import {
 } from "../zod-schemas";
 
 import Dropdown from "@/app/components/drop-down-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ChevronDownIcon } from "lucide-react";
 
 import { z } from "zod";
 import BookEditForm from "../components/book-edit-form";
@@ -64,6 +72,9 @@ export default function DisplayBooks() {
   const [update, setUpdate] = useState<string | null>(null);
   const [languagesList, setLanguagesList] = useState<string[]>([]);
   const [genreList, setGenreList] = useState<string[]>([]);
+  const [format, setFormat] = useState<boolean>(true);
+
+  console.log("format client", format);
 
   function confirmBookDeletion() {
     return window.confirm(`are you sure you want to delete this book`);
@@ -81,7 +92,12 @@ export default function DisplayBooks() {
       throw new Error("something has gone wrong");
     }
 
+    console.log("retrieveBooksPerLanguage triggered", retrieveBooksPerLanguage)
+
+
     const data = await response.json();
+
+
 
     console.log("Find many", data);
 
@@ -114,6 +130,46 @@ export default function DisplayBooks() {
       );
     }
   };
+
+
+
+
+  const retrieveBooksPerFormat = async (digital: boolean) => {
+    setError(null);
+    try {
+      const response = await fetch(`/api/retrieve-per-format?digital=${encodeURIComponent(digital)}`, {
+        method: "GET",
+        headers: { "Content-type": "application/json" },
+      });
+
+      const data = bookSchemaResponseSchema.parse(await response.json());
+
+      if (!data.success) {
+        setError(data.error);
+        return;
+      }
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+
+  
+
+  
+
+      console.log("data", data)
+
+      setBooks(data.books)
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not load books by format");
+    }
+
+
+  
+
+
+  };
+
   useEffect(() => {
     const fetchBooks = async () => {
       try {
@@ -195,6 +251,7 @@ export default function DisplayBooks() {
           </h1>
           <div className="grid grid-cols-2 gap-1">
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            
               {books.length === 1
                 ? "your one read in one place"
                 : `Your ${books.length} books in one place`}
@@ -210,6 +267,35 @@ export default function DisplayBooks() {
               options={genreList}
               onSelect={retrieveBooksPerGenre}
             />
+            <DropdownMenu>
+              <DropdownMenuTrigger className="inline-flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm font-medium shadow-xs hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:bg-zinc-800">
+                {format ? "Digital" : "Paper"}
+                <ChevronDownIcon aria-hidden="true" className="size-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="min-w-44 rounded-lg border border-zinc-200 bg-white p-1 text-zinc-950 shadow-md dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+              >
+                <DropdownMenuRadioGroup
+                  aria-label="Book format"
+                  value={format}
+                  onValueChange={(value: boolean) => {
+                    setFormat(value);
+                    void retrieveBooksPerFormat(value);
+                  }}
+                >
+                  {[true, false].map((option, index) => (
+                    <DropdownMenuRadioItem
+                      key={index}
+                      value={option}
+                      className="gap-2 rounded-md px-3 py-2 text-sm data-highlighted:bg-zinc-100 dark:data-highlighted:bg-zinc-800 [&>span]:flex [&>span]:size-4 [&>span]:items-center [&>span]:justify-center [&>span]:rounded-full [&>span]:border [&>span]:border-zinc-400 [&>span>span]:size-2 [&>span>span]:rounded-full [&>span>span]:bg-current [&_svg]:hidden"
+                    >
+                      {option ? "Digital" : "Paper"}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </header>
 
@@ -256,7 +342,7 @@ export default function DisplayBooks() {
                   {book.coverImageUrl && (
                     <div className="relative h-56 border-b border-zinc-200 bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-800/50">
                       <Image
-                       loading="eager"
+                        loading="eager"
                         src={book.coverImageUrl}
                         alt={`Cover of ${book.title}`}
                         fill
