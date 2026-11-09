@@ -36,7 +36,8 @@ export async function GET(request: NextRequest) {
   console.log(typeof digitalValidation);
 
   const books = await prisma.book.findMany({
-    where: { digital: digitalValidation.data },
+    where:
+     { digital: digitalValidation.data },
   });
 
   return NextResponse.json({
