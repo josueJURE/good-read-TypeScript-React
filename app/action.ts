@@ -10,6 +10,20 @@ export async function submitBookInfo(
 ) {
   const pageCounter = Number(formData.get("pageCount"));
 
+  // A checked checkbox submits "on"; an unchecked checkbox is omitted.
+  const digitalBoolean = formData.get("digital") 
+
+
+
+// 4820195736142
+// https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQ40Rvpkw2TiuVikYCNBSeyli5cNu7P0sxssR5jXSI2KLVDIvsJmsI5Wp8YL_HI0i6gDMDScPOz3RM26eylSLY2nTP_QrHA_xoTjo-_pa9X&usqp=CAc
+
+// https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSpBWo8CzHhoQwnAyEL3sKSzIwyLiG_ux1eKKTx1whIz3XTEitYEkPiD_fVRnjen4ChphZNvV6ZWUlwBNIHX1yK5IOdJ32WHVWsqtOQNbuM&usqp=CAc
+
+// https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcR6twboHrfce6T8GKI_VHevDti0YjWSBKXX7tf2zyiRju5I5F_ICMawBPxKbnYH0TZ53a1wPjmEk7BXrSciLsz6jM8ElUOQU3IllGhk1Vo&usqp=CAc
+
+// CID https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQ3RlrTzjtuZjUXH2x7LuGPg-QJl6LhVxawMp948EkUVl5sfGAK78_lSiFQLJJtSkPL5a3b_AitpQQGKm_ITsPhrWfJ6nc0WYZOKzyMM62j&usqp=CAc
+
   const publishedAtInput = formData.get("publishedAt");
 
   const readingStart = formData.get("StartedReading");
@@ -35,7 +49,10 @@ export async function submitBookInfo(
       language: formData.get("language"),
       startedReading: parseFormDate(readingStart),
       finishedReading: parseFormDate(readingEnd),
+      digital: Boolean(digitalBoolean)
     });
+
+   
 
     const {
       title,
@@ -50,7 +67,13 @@ export async function submitBookInfo(
       publishedAt,
       coverImageUrl,
       language,
+      digital
+      
     } = bookSchemaValidation;
+
+
+    console.log("digitalBoolean", digitalBoolean)
+    console.log(typeof digital)
 
     await prisma.book.create({
       data: {
@@ -66,6 +89,8 @@ export async function submitBookInfo(
         publishedAt,
         coverImageUrl,
         language,
+        digital
+     
       },
     });
     return { message: "Book information submitted." };

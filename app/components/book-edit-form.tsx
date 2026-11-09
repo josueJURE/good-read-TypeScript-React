@@ -4,7 +4,9 @@ import { useId, useState, type FormEvent } from "react";
 import { bookResponseSchema, type bookSchemaType } from "../zod-schemas";
 
 type BookDraft = {
-  [Field in Exclude<keyof bookSchemaType, "id">]-?: string;
+  [Field in Exclude<keyof bookSchemaType, "id" | "digital">]-?: string;
+} & {
+  digital: boolean;
 };
 
 type BookEditFormProps = {
@@ -18,7 +20,7 @@ type BookEditFormProps = {
 };
 
 const fields: {
-  name: Exclude<keyof BookDraft, "description">;
+  name: Exclude<keyof BookDraft, "description" | "digital">;
   label: string;
   type?: "text" | "number" | "date" | "url";
   required?: boolean;
@@ -70,6 +72,10 @@ function baseClassName(
   }`;
 }
 
+function test() {
+  console.log("test")
+}
+
 function trimToNull(input: string | null): string | null {
   return input?.trim() || null;
 }
@@ -103,11 +109,12 @@ export default function BookEditForm({
     finishedReading: book.finishedReading.slice(0, 10),
     coverImageUrl: book.coverImageUrl ?? "",
     description: book.description ?? "",
+    digital: book.digital
   }));
   const [error, setError] = useState<string | null>(null);
   const [hasDateError, setHasDateError] = useState(false);
 
-  function updateField(name: keyof BookDraft, value: string) {
+  function updateField<Field extends keyof BookDraft>(name: Field, value: BookDraft[Field]) {
     setDraft((current) => ({ ...current, [name]: value }));
     setError(null);
     setHasDateError(false);
@@ -236,6 +243,18 @@ export default function BookEditForm({
       </header>
 
       <div className="flex-1 space-y-4 px-6 pb-6">
+        <div className="space-y-1.5">
+          <label htmlFor={`${formId}-digital`} className={labelClassName}>
+            Digital
+          </label>
+          <input
+            id={`${formId}-digital`}
+            name="digital"
+            type="checkbox"
+            checked={draft.digital}
+            onChange={(event) => updateField("digital", event.target.checked)}
+          />
+        </div>
         {fields.map(({ name, label, type = "text", ...constraints }) => (
           <div key={name} className="space-y-1.5">
             <label
@@ -298,6 +317,7 @@ export default function BookEditForm({
         <button
           type="submit"
           className="rounded-lg bg-zinc-950 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-500 dark:bg-zinc-50 dark:text-zinc-950 dark:hover:bg-zinc-200"
+          onClick={test}
         >
           Save changes
         </button>
