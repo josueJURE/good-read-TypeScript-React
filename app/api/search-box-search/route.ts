@@ -1,4 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+
+import { headers } from 'next/headers'
+
+import {type NextRequest, NextResponse } from "next/server";
 import {prisma} from "@/lib/prisma"
 
 
@@ -7,6 +10,7 @@ import {prisma} from "@/lib/prisma"
 export async function GET(request: NextRequest) {
 
     const url =  request.nextUrl.searchParams.get("search")
+  
 
     console.log(url)
 
@@ -19,7 +23,7 @@ export async function GET(request: NextRequest) {
 
     const books = await prisma.book.findMany({
         where: {
-            title : {startsWith: url}
+            title : {contains: url}
         }
     })
 
