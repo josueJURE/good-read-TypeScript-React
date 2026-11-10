@@ -5,7 +5,10 @@ import {
   bookSchemaResponseSchema,
   bookDeletionSchema,
   type bookSchemaType,
+  
 } from "../zod-schemas";
+
+import { Input } from "@/components/ui/input";
 
 import Dropdown from "@/app/components/drop-down-menu";
 import {
@@ -73,6 +76,7 @@ export default function DisplayBooks() {
   const [languagesList, setLanguagesList] = useState<string[]>([]);
   const [genreList, setGenreList] = useState<string[]>([]);
   const [format, setFormat] = useState<boolean>(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
   console.log("format client", format);
 
@@ -92,12 +96,9 @@ export default function DisplayBooks() {
       throw new Error("something has gone wrong");
     }
 
-    console.log("retrieveBooksPerLanguage triggered", retrieveBooksPerLanguage)
-
+    console.log("retrieveBooksPerLanguage triggered", retrieveBooksPerLanguage);
 
     const data = await response.json();
-
-
 
     console.log("Find many", data);
 
@@ -131,16 +132,19 @@ export default function DisplayBooks() {
     }
   };
 
-
-
+  // Argument of type 'EventTarget & HTMLInputElement' is not assignable to parameter of type 'ChangeEvent<HTMLInputElement, Element>'.
+  // Type 'EventTarget & HTMLInputElement' is missing the following properties from type 'ChangeEvent<HTMLInputElement, Element>': target, nativeEvent, currentTarget, bubbles, and 10 more.
 
   const retrieveBooksPerFormat = async (digital: boolean) => {
     setError(null);
     try {
-      const response = await fetch(`/api/retrieve-per-format?digital=${encodeURIComponent(digital)}`, {
-        method: "GET",
-        headers: { "Content-type": "application/json" },
-      });
+      const response = await fetch(
+        `/api/retrieve-per-format?digital=${encodeURIComponent(digital)}`,
+        {
+          method: "GET",
+          headers: { "Content-type": "application/json" },
+        }
+      );
 
       const data = bookSchemaResponseSchema.parse(await response.json());
 
@@ -152,23 +156,51 @@ export default function DisplayBooks() {
         throw new Error(`Response status: ${response.status}`);
       }
 
-  
+      console.log("data", data);
 
-  
-
-      console.log("data", data)
-
-      setBooks(data.books)
-
+      setBooks(data.books);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not load books by format");
+      setError(
+        err instanceof Error ? err.message : "Could not load books by format"
+      );
+    }
+  };
+
+  const searchBox = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const search = event.currentTarget.value;
+
+    console.log("search", search);
+
+    console.log("search", search);
+    const response = await fetch(
+      `/api/search-box-search?search=${encodeURIComponent(search)}`,
+      {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+
+    const data = await response.json();
+    if (!data.success) {
+      setError(data.error);
+      return;
     }
 
+    if (!response.ok) {
+      console.log("Sonething has gone wrong in you search box search");
+      throw new Error("Sonething has gone wrong in you search box search");
+    }
 
-  
+    setBooks(data.books)
 
 
   };
+
+  // https://example.com/?name=Jonathan&age=18
+  // Argument of type 'string | ChangeEvent<HTMLInputElement, HTMLInputElement>' is not assignable to parameter of type 'string'.
+  // Type 'ChangeEvent<HTMLInputElement, HTMLInputElement>' is not assignable to type 'string'.
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -251,7 +283,6 @@ export default function DisplayBooks() {
           </h1>
           <div className="grid grid-cols-2 gap-1">
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            
               {books.length === 1
                 ? "your one read in one place"
                 : `Your ${books.length} books in one place`}
@@ -296,8 +327,12 @@ export default function DisplayBooks() {
                 </DropdownMenuRadioGroup>
               </DropdownMenuContent>
             </DropdownMenu>
+            <Input onChange={(e) => searchBox(e)} />
+            {/* <Input onChange={(e) => console.log(e.currentTarget.value)} /> */}
           </div>
         </header>
+
+        
 
         {error && (
           <p
