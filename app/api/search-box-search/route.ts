@@ -1,24 +1,37 @@
-
 import { type NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+import { z } from "zod";
+
+const searchSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(100)
+  .regex(/^[a-z]+$/i);
+
 export async function GET(request: NextRequest) {
-  const url = request.nextUrl.searchParams.get("search");
+  const titleValidation = searchSchema.safeParse(
+    request.nextUrl.searchParams.get("search")
+  );
 
-  console.log(url);
+  console.log("titleValidation", titleValidation);
 
-  
-
-  if (url === null)
+  if (!titleValidation.success) {
     return NextResponse.json({
       success: false,
     });
+  }
+
+  // if (url === null)
+  //   return NextResponse.json({
+  //     success: false,
+  //   });
 
   const books = await prisma.book.findMany({
     where: {
-      title: { contains: url },
+      title: { contains: titleValidation.data, mode: "insensitive" },
     },
-  
   });
 
   return NextResponse.json({
