@@ -5,7 +5,6 @@ import {
   bookSchemaResponseSchema,
   bookDeletionSchema,
   type bookSchemaType,
-  
 } from "../zod-schemas";
 
 import { Input } from "@/components/ui/input";
@@ -81,8 +80,7 @@ export default function DisplayBooks() {
   console.log("format client", format);
 
   function readingRate(pageCount: number, finishedReading: number): number {
-    return pageCount / finishedReading
-
+    return pageCount / finishedReading;
   }
 
   function confirmBookDeletion() {
@@ -171,9 +169,7 @@ export default function DisplayBooks() {
     }
   };
 
-  const searchBox = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const searchBox = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const search = event.currentTarget.value;
 
     console.log("search", search);
@@ -199,9 +195,8 @@ export default function DisplayBooks() {
       throw new Error("Sonething has gone wrong in you search box search");
     }
 
-    setBooks(data.books)
-    setError(null)
-
+    setBooks(data.books);
+    setError(null);
   };
 
   // https://example.com/?name=Jonathan&age=18
@@ -337,8 +332,6 @@ export default function DisplayBooks() {
             {/* <Input onChange={(e) => console.log(e.currentTarget.value)} /> */}
           </div>
         </header>
-
-        
 
         {error && (
           <p
@@ -489,20 +482,26 @@ export default function DisplayBooks() {
                         </dd>
                       </div>
                       <div>
-
-                   
-                       
-                      <div>Reading average
-                        {book.finishedReading && <div>{Math.floor(book.pageCount / Math.floor(1+ getDaysBetweenDates(new Date(book.startedReading), new Date(book.finishedReading))))}</div>
-                       
-                          
-                        }  
-
-
+                        <div>
+                          Reading average
+                          {book.finishedReading ? (
+                            <div>
+                              {Math.floor(
+                                book.pageCount /
+                                  Math.floor(
+                                    1 +
+                                      getDaysBetweenDates(
+                                        new Date(book.startedReading),
+                                        new Date(book.finishedReading)
+                                      )
+                                  )
+                              )}
+                            </div>
+                          ) : (
+                            "still being read"
+                          )}
+                        </div>
                       </div>
-
-                      </div>
-                    
 
                       <div className="col-span-2 space-y-1">
                         <dt className="text-xs text-zinc-500 dark:text-zinc-400">
