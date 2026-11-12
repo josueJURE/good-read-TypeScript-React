@@ -80,6 +80,11 @@ export default function DisplayBooks() {
 
   console.log("format client", format);
 
+  function readingRate(pageCount: number, finishedReading: number): number {
+    return pageCount / finishedReading
+
+  }
+
   function confirmBookDeletion() {
     return window.confirm(`are you sure you want to delete this book`);
   }
@@ -483,6 +488,21 @@ export default function DisplayBooks() {
                           )}
                         </dd>
                       </div>
+                      <div>
+
+                   
+                       
+                      <div>Reading average
+                        {book.finishedReading && <div>{Math.floor(book.pageCount / Math.floor(1+ getDaysBetweenDates(new Date(book.startedReading), new Date(book.finishedReading))))}</div>
+                       
+                          
+                        }  
+
+
+                      </div>
+
+                      </div>
+                    
 
                       <div className="col-span-2 space-y-1">
                         <dt className="text-xs text-zinc-500 dark:text-zinc-400">

@@ -7,6 +7,9 @@ const searchSchema = z.object({
 
 })
 
+
+
+
 export async function GET(request: NextRequest) {
   const titleValidation = searchSchema.shape.title.safeParse(
     request.nextUrl.searchParams.get("search")
