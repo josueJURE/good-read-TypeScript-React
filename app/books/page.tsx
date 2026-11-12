@@ -146,7 +146,7 @@ export default function DisplayBooks() {
         }
       );
 
-      const data = bookSchemaResponseSchema.parse(await response.json());
+      const data = await response.json();
 
       if (!data.success) {
         setError(data.error);
@@ -182,7 +182,8 @@ export default function DisplayBooks() {
       }
     );
 
-    const data = await response.json();
+    // const data = await response.json();
+    const data = bookSchemaResponseSchema.parse(await response.json());
     if (!data.success) {
       setError(data.error);
       return;
@@ -194,7 +195,7 @@ export default function DisplayBooks() {
     }
 
     setBooks(data.books)
-
+    setError(null)
 
   };
 

@@ -1,36 +1,29 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-
 import { z } from "zod";
 
-const searchSchema = z
-  .string()
-  .trim()
-  .min(1)
-  .max(100)
-  .regex(/^[a-z]+$/i);
+const searchSchema = z.object({
+  title: z.string().trim().min(0).max(50),
+
+})
 
 export async function GET(request: NextRequest) {
-  const titleValidation = searchSchema.safeParse(
+  const titleValidation = searchSchema.shape.title.safeParse(
     request.nextUrl.searchParams.get("search")
   );
-
-  console.log("titleValidation", titleValidation);
 
   if (!titleValidation.success) {
     return NextResponse.json({
       success: false,
+      error: "No books match your search"
     });
   }
 
-  // if (url === null)
-  //   return NextResponse.json({
-  //     success: false,
-  //   });
-
   const books = await prisma.book.findMany({
     where: {
-      title: { contains: titleValidation.data, mode: "insensitive" },
+      title: { contains: titleValidation.data,
+        mode: "insensitive",
+       },
     },
   });
 
