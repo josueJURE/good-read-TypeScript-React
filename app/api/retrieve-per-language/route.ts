@@ -22,6 +22,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const books = await prisma.book.findMany({
+      
       where: { language: languageValidation.data },
     });
 
